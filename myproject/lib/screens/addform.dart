@@ -10,7 +10,6 @@ class AddForm extends StatefulWidget {
 }
 
 class _AddFormState extends State<AddForm> {
-
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   int _age = 20;
@@ -18,108 +17,92 @@ class _AddFormState extends State<AddForm> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "My Title",
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("ແບບຟອມບັນທຶກຂໍ້ມູນ"),
-          centerTitle: true,
-        ),
-        body: Padding( 
-          padding: const EdgeInsets.all(15),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  keyboardType: TextInputType.multiline,
-                  decoration: const InputDecoration(
-                      label: Text("ຊື່",style: TextStyle(fontSize: 20),)
-                  ),
-                  validator: (value) {
-                    if(value == null || value.isEmpty){
-                      return "ກະລຸນາປ້ອນຊື່ຂອງທ່ານ";
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _name = value!;
-                  },
-                ),
-                TextFormField(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("ແບບຟອມບັນທຶກຂໍ້ມູນ"),
+        automaticallyImplyLeading: true, // Ensures the back button appears
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                keyboardType: TextInputType.multiline,
+                decoration: const InputDecoration(
+                    label: Text(
+                  "ຊື່",
+                  style: TextStyle(fontSize: 20),
+                )),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "ກະລຸນາປ້ອນຊື່ຂອງທ່ານ";
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _name = value!;
+                },
+              ),
+              TextFormField(
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                      label: Text("ອາຍຸ", style: TextStyle(fontSize: 20),)
-                  ),
+                      label: Text(
+                    "ອາຍຸ",
+                    style: TextStyle(fontSize: 20),
+                  )),
                   validator: (value) {
-                    if(value == null || value.isEmpty){
+                    if (value == null || value.isEmpty) {
                       return "ກະລຸນາປ້ອນອາຍຸຂອງທ່ານ";
                     }
                     return null;
                   },
                   onSaved: (value) {
                     _age = int.tryParse(value.toString()) ?? 0;
-                  }
-                ),
-                const SizedBox(height: 20,),
-                // DropdownButtonFormField(
-                //   value: _job,
-                //   decoration: const InputDecoration(
-                //       label: Text("ອາຊີບ", style: TextStyle(fontSize: 20),)
-                //   ),
-                //   items: Job.values.map((key){
-                //       return DropdownMenuItem(
-                //         value: key,
-                //         child: Text(key.title),
-                //       );
-                //   }).toList(), 
-                //   onChanged: (value){
-                //     setState(() {  
-                //     _job = value!;
-                //     });
-                //   }
-                // ),
-                const SizedBox(height: 50,),
-                // FilledButton(
-                //     onPressed: (){
-                //      if (_formKey.currentState!.validate()) {
-                //       _formKey.currentState!.save();
-                //       data.add(
-                //         Person(name: _name, age: _age, job: _job)
-                //       );
-                //       _formKey.currentState!.reset();
-                //       Navigator.pushReplacement(context, MaterialPageRoute(
-                //           builder: (ctx) => const Item())
-                //       );
-                //      }
-
-                //     },
-                //     style: FilledButton.styleFrom(backgroundColor: Colors.blue),
-                //     child: const Text("ບັນທຶກ", style: TextStyle(fontSize: 20),
-                //     )
-                // ),
-                FilledButton(
-                  
+                  }),
+              const SizedBox(
+                height: 20,
+              ),
+              DropdownButtonFormField(
+                  value: _job,
+                  decoration: const InputDecoration(
+                      label: Text(
+                    "ອາຊີບ",
+                    style: TextStyle(fontSize: 20),
+                  )),
+                  items: Job.values.map((key) {
+                    return DropdownMenuItem(
+                      value: key,
+                      child: Text(key.title),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _job = value!;
+                    });
+                  }),
+              const SizedBox(
+                height: 50,
+              ),
+              FilledButton(
                   onPressed: () {
-
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      data.add(
-                        Person(name: _name, age: _age, job: _job)
-                      );
+                      data.add(Person(name: _name, age: _age, job: _job));
                       _formKey.currentState!.reset();
-                      Navigator.pushReplacement(context, MaterialPageRoute(
-                          builder: (ctx) => const Item())
-                      );
-                     }
-
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (ctx) => const Item()));
+                    }
                   },
-                  style: FilledButton.styleFrom(backgroundColor: Colors.blue), 
-                  child: const Text("ບັນທຶກ", style: TextStyle(fontSize: 20),)
-                )
-              ],
-            ),
+                  style: FilledButton.styleFrom(backgroundColor: Colors.blue),
+                  child: const Text(
+                    "ບັນທຶກ",
+                    style: TextStyle(fontSize: 20),
+                  )),
+            ],
           ),
         ),
       ),

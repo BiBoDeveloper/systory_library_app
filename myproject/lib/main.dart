@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myproject/screens/addform.dart';
 import 'package:myproject/screens/loginPage.dart';
-// import 'package:myproject/screens/loginPage.dart';
 // import 'package:myproject/screens/tableView.dart';
 
 void main() {

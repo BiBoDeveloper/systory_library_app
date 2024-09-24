@@ -38,7 +38,7 @@
       ),Positioned(
         top: 0,
         left: 0,
-        child: Container(
+        child: SizedBox(
       width: 360,
       height: 80,
       
@@ -62,7 +62,7 @@
       ),Positioned(
         top: 36,
         left: 8,
-        child: Container(
+        child: SizedBox(
       width: 35,
       height: 35,
       
@@ -138,7 +138,7 @@
           Positioned(
         top: 27.002656936645508,
         left: 313.3334045410156,
-        child: Container(
+        child: SizedBox(
       width: 24.32803726196289,
       height: 11.333333015441895,
       
