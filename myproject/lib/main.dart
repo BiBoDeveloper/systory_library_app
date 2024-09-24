@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myproject/screens/addform.dart';
+import 'package:myproject/screens/loginPage.dart';
 // import 'package:myproject/screens/loginPage.dart';
-import 'package:myproject/screens/tableView.dart';
+// import 'package:myproject/screens/tableView.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +17,7 @@ class MyApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     title: "My Title",
     home: Scaffold(
-      body: TableExampleApp(),
+      body: LoginPage(),
     ),
   );
   }

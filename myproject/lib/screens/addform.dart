@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:myproject/main.dart';
 import 'package:myproject/models/person.dart';
 import 'package:myproject/screens/item.dart';
 
@@ -64,27 +63,47 @@ class _AddFormState extends State<AddForm> {
                   }
                 ),
                 const SizedBox(height: 20,),
-                DropdownButtonFormField(
-                  value: _job,
-                  decoration: const InputDecoration(
-                      label: Text("ອາຊີບ", style: TextStyle(fontSize: 20),)
-                  ),
-                  items: Job.values.map((key){
-                      return DropdownMenuItem(
-                        value: key,
-                        child: Text(key.title),
-                      );
-                  }).toList(), 
-                  onChanged: (value){
-                    setState(() {  
-                    _job = value!;
-                    });
-                  }
-                ),
+                // DropdownButtonFormField(
+                //   value: _job,
+                //   decoration: const InputDecoration(
+                //       label: Text("ອາຊີບ", style: TextStyle(fontSize: 20),)
+                //   ),
+                //   items: Job.values.map((key){
+                //       return DropdownMenuItem(
+                //         value: key,
+                //         child: Text(key.title),
+                //       );
+                //   }).toList(), 
+                //   onChanged: (value){
+                //     setState(() {  
+                //     _job = value!;
+                //     });
+                //   }
+                // ),
                 const SizedBox(height: 50,),
+                // FilledButton(
+                //     onPressed: (){
+                //      if (_formKey.currentState!.validate()) {
+                //       _formKey.currentState!.save();
+                //       data.add(
+                //         Person(name: _name, age: _age, job: _job)
+                //       );
+                //       _formKey.currentState!.reset();
+                //       Navigator.pushReplacement(context, MaterialPageRoute(
+                //           builder: (ctx) => const Item())
+                //       );
+                //      }
+
+                //     },
+                //     style: FilledButton.styleFrom(backgroundColor: Colors.blue),
+                //     child: const Text("ບັນທຶກ", style: TextStyle(fontSize: 20),
+                //     )
+                // ),
                 FilledButton(
-                    onPressed: (){
-                     if (_formKey.currentState!.validate()) {
+                  
+                  onPressed: () {
+
+                    if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       data.add(
                         Person(name: _name, age: _age, job: _job)
@@ -95,11 +114,10 @@ class _AddFormState extends State<AddForm> {
                       );
                      }
 
-                    },
-                    style: FilledButton.styleFrom(backgroundColor: Colors.blue),
-                    child: const Text("ບັນທຶກ", style: TextStyle(fontSize: 20),
-                    )
-                ),
+                  },
+                  style: FilledButton.styleFrom(backgroundColor: Colors.blue), 
+                  child: const Text("ບັນທຶກ", style: TextStyle(fontSize: 20),)
+                )
               ],
             ),
           ),

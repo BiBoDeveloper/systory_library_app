@@ -26,9 +26,7 @@ class TableExample extends StatefulWidget {
 class _TableExampleState extends State<TableExample> {
   // List of table rows data
   List<List<String>> tableData = [
-    ['Javatpoint', 'Flutter', '5*'],
-    ['Javatpoint', 'MySQL', '5*'],
-    ['Javatpoint', 'ReactJS', '5*'],
+    ['', '', ''],
   ];
 
   final TextEditingController websiteController = TextEditingController();
@@ -45,7 +43,18 @@ class _TableExampleState extends State<TableExample> {
   // Method to add a new row
   void _addRow(String website, String tutorial, String review) {
     setState(() {
-      tableData.add([website, tutorial, review]); // Add the new row to the list
+      if (tableData.length == 1) {
+        if (tableData[0][0] == "" && tableData[0][1] == "" && tableData[0][2] == "") {
+          tableData.removeAt(0);
+        }
+        tableData.add([website, tutorial, review]);
+        tableData.add(['', '', '']);
+      }  else if (tableData.length > 1) {
+        tableData.insert(tableData.length - 1,[website, tutorial, review]);
+      } else {
+        tableData.add([website, tutorial, review]);
+        tableData.add(['', '', '']);
+      }
     });
   }
 
@@ -61,15 +70,15 @@ class _TableExampleState extends State<TableExample> {
             children: [
               TextField(
                 controller: websiteController,
-                decoration: const InputDecoration(labelText: "Website"),
+                decoration: const InputDecoration(labelText: "Title"),
               ),
               TextField(
                 controller: tutorialController,
-                decoration: const InputDecoration(labelText: "Tutorial"),
+                decoration: const InputDecoration(labelText: "Description"),
               ),
               TextField(
                 controller: reviewController,
-                decoration: const InputDecoration(labelText: "Review"),
+                decoration: const InputDecoration(labelText: "Example(code)"),
               ),
             ],
           ),
@@ -104,54 +113,120 @@ class _TableExampleState extends State<TableExample> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        children: <Widget>[
-          Container(
-            margin: const EdgeInsets.all(20),
-            child: Table(
-              defaultColumnWidth: const FixedColumnWidth(80.0),
-              border: TableBorder.all(
-                color: Colors.black,
-                style: BorderStyle.solid,
-                width: 2,
-              ),
+  child: Column(
+    children: <Widget>[
+      Container(
+        margin: const EdgeInsets.all(5),
+        child: Table(
+          defaultColumnWidth: const FixedColumnWidth(90.0), // Default column width set to 90
+          // border: TableBorder.all(
+          //   color: Colors.black,
+          //   style: BorderStyle.solid,
+          //   width: 0.1,
+          // ),
+          columnWidths: const {
+            0: FixedColumnWidth(90.0), // Column 1 (Title) width
+            1: FixedColumnWidth(150.0), // Column 2 (Description) width
+            2: FixedColumnWidth(100.0), // Column 3 (Example) width
+            3: FixedColumnWidth(30.0),  // Column 4 (Icon) width
+          },
+          children: [
+            TableRow(
               children: [
-                const TableRow(
-                  children: [
-                    Column(children: [Text('Website', style: TextStyle(fontSize: 20.0))]),
-                    Column(children: [Text('Tutorial', style: TextStyle(fontSize: 20.0))]),
-                    Column(children: [Text('Review', style: TextStyle(fontSize: 20.0))]),
-                    SizedBox.shrink(), // Empty cell for the header row
-                  ],
-                ),
-                // Dynamically create TableRow widgets based on tableData
-                for (int i = 0; i < tableData.length; i++)
-                  TableRow(
-                    children: [
-                      Column(children: [Text(tableData[i][0])]),
-                      Column(children: [Text(tableData[i][1])]),
-                      Column(children: [Text(tableData[i][2])]),
-                      Column(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              _removeRow(i); // Remove the row on button click
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+                Container(
+                  color: Colors.cyan,
+                  child: const SizedBox(
+                    height: 30.0, // Row height for header
+                    child: Center(child: Text('Title', style: TextStyle(fontSize: 12.0, color: Colors.white))),
                   ),
+                ),
+                Container(
+                  color: Colors.cyan,
+                  child: const SizedBox(
+                    height: 30.0,
+                    child: Center(child: Text('Description', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                  ),
+                ),
+                Container(
+                  color: Colors.cyan,
+                  child: const SizedBox(
+                    height: 30.0,
+                    child: Center(child: Text('Example (Code)', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                  ),
+                ),
+                const SizedBox.shrink(), // Empty header for the icon column
               ],
             ),
-          ),
-          ElevatedButton(
-            onPressed: _showAddRowDialog,
-            child: const Text("Add New Row"),
-          ),
-        ],
+            // Dynamically create TableRow widgets based on tableData
+            for (int i = 0; i < tableData.length; i++)
+              TableRow(
+                children: [
+                  Container(
+                      decoration: const BoxDecoration(
+                      border: Border(
+                        left: BorderSide(color: Colors.black, width: 0.1), // Left border
+                        top: BorderSide(color: Colors.black, width: 0.1),  // Top border
+                        bottom: BorderSide(color: Colors.black, width: 0.1), // Bottom border
+                        right: BorderSide(color: Colors.black, width: 0.1), // Bottom border
+                      ),
+                    ),
+                    child: SizedBox(
+                      height: 30.0, // Row height for content
+                      child: Center(child: Text(tableData[i][0], style: const TextStyle(fontSize: 12.0))),
+                    ),
+                  ),
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        left: BorderSide(color: Colors.black, width: 0.1), // Left border
+                        top: BorderSide(color: Colors.black, width: 0.1),  // Top border
+                        bottom: BorderSide(color: Colors.black, width: 0.1), // Bottom border
+                        right: BorderSide(color: Colors.black, width: 0.1), // Bottom border
+                      ),
+                    ),
+                    child: SizedBox(
+                      height: 30.0,
+                      child: Center(child: Text(tableData[i][1], style: const TextStyle(fontSize: 12.0))),
+                    ),
+                  ),
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        left: BorderSide(color: Colors.black, width: 0.1), // Left border
+                        top: BorderSide(color: Colors.black, width: 0.1),  // Top border
+                        bottom: BorderSide(color: Colors.black, width: 0.1), // Bottom border
+                        right: BorderSide(color: Colors.black, width: 0.1), // Bottom border
+                      ),
+                    ),
+                    child: SizedBox(
+                      height: 30.0,
+                      child: Center(child: Text(tableData[i][2], style: const TextStyle(fontSize: 12.0))),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 30.0, // Adjust the height of the icon column
+                    child: Center(
+                      child: IconButton(
+                        icon: const Icon(Icons.close),
+                        iconSize: 16.0,
+                        onPressed: () {
+                          _removeRow(i); // Remove the row on button click
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
-    );
+      ElevatedButton(
+        onPressed: _showAddRowDialog,
+        child: const Text("Add New Row", style: TextStyle(fontSize: 12.0)), // Consistent text size
+      ),
+    ],
+  ),
+);
+
   }
 }

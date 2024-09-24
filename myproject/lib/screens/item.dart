@@ -48,6 +48,7 @@
 import 'package:flutter/material.dart';
 import 'package:myproject/models/person.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myproject/screens/addPresentation.dart';
 import 'package:myproject/screens/addform.dart';
 import 'package:myproject/screens/loginPage.dart';
 
@@ -225,7 +226,7 @@ class _MyWidgetState extends State<Item> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (ctx) => const AddForm()),
+                    MaterialPageRoute(builder: (ctx) => const AddPresentation()),
                   );
                 },
               ),
