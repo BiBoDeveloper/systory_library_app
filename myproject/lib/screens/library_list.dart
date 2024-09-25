@@ -5,18 +5,19 @@ import 'dart:convert';
 // import 'package:myproject/models/person.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myproject/screens/addPresentation.dart';
-import 'package:myproject/screens/addform.dart';
+import 'package:myproject/screens/detail.dart';
+// import 'package:myproject/screens/addform.dart';
 // import 'package:myproject/screens/loginPage.dart';
 
-class Item extends StatefulWidget {
-  const Item({super.key});
+class LibraryList extends StatefulWidget {
+  const LibraryList({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _ItemState createState() => _ItemState();
+  _LibraryListState createState() => _LibraryListState();
 }
 
-class _ItemState extends State<Item> {
+class _LibraryListState extends State<LibraryList> {
   // List of library items
   // final List<LibraryItem> allLibraryItems = List.generate(
   //   5,
@@ -234,6 +235,9 @@ class LibraryItemCard extends StatelessWidget {
         FocusScope.of(context).unfocus(); // Unfocus any input fields
         // ignore: avoid_print
         print('Card tap: ${libraryItem.title}');
+        Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (ctx) => const Detail())
+        );
       },
       child: Card(
         color: const Color(0x9907837F),

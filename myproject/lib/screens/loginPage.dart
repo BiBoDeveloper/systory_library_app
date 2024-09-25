@@ -2,7 +2,7 @@ import 'dart:convert'; // For JSON encoding/decoding
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:myproject/screens/item.dart';
+import 'package:myproject/screens/library_list.dart';
 // Required for BackdropFilter
 
 
@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                  const SnackBar(content: Text("Login Successful")),
               );
               Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (ctx) => const Item())
+                  builder: (ctx) => const LibraryList())
               );
         } else {
           checkPasswordIncorrect(context);
