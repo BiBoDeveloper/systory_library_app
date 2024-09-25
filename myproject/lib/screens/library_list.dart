@@ -5,7 +5,9 @@ import 'dart:convert';
 // import 'package:myproject/models/person.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:myproject/screens/addPresentation.dart';
-import 'package:myproject/screens/detail.dart';
+// import 'package:myproject/screens/detail.dart';
+import 'package:myproject/screens/loginPage.dart';
+import 'package:myproject/screens/library_item.dart';
 // import 'package:myproject/screens/addform.dart';
 // import 'package:myproject/screens/loginPage.dart';
 
@@ -64,7 +66,25 @@ class _LibraryListState extends State<LibraryList> {
             image: item['IMAGE'],
             id: item['LIB_ID'].toString(),
           );
+          // return LibraryItem(
+          //   libName: item['LIB_NAME'],
+          //   description: item['DESCRIPTION'] ?? '',
+          //   createdBy: item['CREATE_BY'] ?? '',
+          //   image: item['IMAGE'] ?? '',
+          //   libId: item['LIB_ID'],
+          //   reference: item['REFERENCE'] ?? '',
+          //   descriptionsOver: item['DESCRIPTIONS_OVER'] ?? '',
+          //   descriptionsIns: item['DESCRIPTIONS_INS'] ?? '',
+          //   descriptionsHtu: item['DESCRIPTIONS_HTU'] ?? '',
+          //   descriptionsExp: item['DESCRIPTIONS_EXP'] ?? '',
+          //   descriptionsSgt: item['DESCRIPTIONS_SGT'] ?? '',
+          //   attachment: [],
+          //   installation: item['INSTALLATION'],
+          //   howToUse: item['HOWTOUSE'],
+          //   example: item['EXAMPLE'],
+          // );
         }).toList();
+        
 
         setState(() {
           allLibraryItems = fetchedItems;
@@ -129,12 +149,44 @@ class _LibraryListState extends State<LibraryList> {
             ],
           ),
         ),
-        actions: const [
-          Icon(
-            Icons.logout,
-            color: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.logout,
+              color: Colors.black,
+            ),
+            onPressed: () {
+              // Add your logout logic here
+              // print('Logout tapped');
+              showDialog<String>(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                  title: const Text("Warning"),
+                  content: const Text('Are you sure you want to logout?'),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'No'),
+                      child: const Text('No'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Handle delete action
+                        FocusScope.of(context).unfocus();
+                        Navigator.pop(context, 'Yes');
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginPage()),
+                        );
+                      },
+                      child: const Text('Yes'),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
         ],
       ),
       body: GestureDetector(
@@ -142,210 +194,63 @@ class _LibraryListState extends State<LibraryList> {
           FocusScope.of(context).unfocus();
         },
         child: Container(
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage(
-                    'assets/images/bg.jpg'),
-                fit: BoxFit.cover,
-                opacity: 0.15)),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              // Search bar
-              TextField(
-                onChanged:
-                    _filterLibraryList, // Calls function when input changes
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Search',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/images/bg.jpg'),
+                  fit: BoxFit.cover,
+                  opacity: 0.15)),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                // Search bar
+                TextField(
+                  onChanged:
+                      _filterLibraryList, // Calls function when input changes
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Search',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Text('Library list',
-                      style: GoogleFonts.kanit(textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20))
-                      ),
-                ],
-              ),
-              // const SizedBox(height: 10),
-              Expanded(
-                child: isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator()) // Loading indicator
-                    : ListView.builder(
-                        itemCount: filteredLibraryItems.length,
-                        itemBuilder: (context, index) {
-                          return LibraryItemCard(
-                              libraryItem: filteredLibraryItems[index]);
-                        },
-                      ),
-              ),
-            ],
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Text('Library list',
+                        style: GoogleFonts.kanit(
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20))),
+                  ],
+                ),
+                // const SizedBox(height: 10),
+                Expanded(
+                  child: isLoading
+                      ? const Center(
+                          child:
+                              CircularProgressIndicator()) // Loading indicator
+                      : ListView.builder(
+                          itemCount: filteredLibraryItems.length,
+                          itemBuilder: (context, index) {
+                            return LibraryItemCard(
+                                libraryItem: filteredLibraryItems[index]);
+                          },
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Handle button press for adding a new library item
-          Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (ctx) => const AddPresentation())
-          );
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (ctx) => const AddPresentation()));
         },
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class LibraryItem {
-  final String title;
-  final String description;
-  final String author;
-  final String image;
-  final String id;
-
-  LibraryItem({
-    required this.title,
-    required this.description,
-    required this.author,
-    required this.image,
-    required this.id,
-  });
-}
-
-class LibraryItemCard extends StatelessWidget {
-  final LibraryItem libraryItem;
-
-  const LibraryItemCard({super.key, required this.libraryItem});
-
-  @override
-  Widget build(BuildContext context) {
-    // ignore: avoid_print
-    // print('libraryItem:  $libraryItem');
-    return GestureDetector(
-      onTap: () {
-        // ignore: avoid_print
-        FocusScope.of(context).unfocus(); // Unfocus any input fields
-        // ignore: avoid_print
-        print('Card tap: ${libraryItem.title}');
-        Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (ctx) => const Detail())
-        );
-      },
-      child: Card(
-        color: const Color(0x9907837F),
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 10),
-        child: Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  PopupMenuButton<String>(
-                    icon: const Icon(
-                      Icons.more_horiz_rounded,
-                      color: Colors.white,
-                    ),
-                    onSelected: (value) {
-                      FocusScope.of(context).unfocus();
-                      if (value == 'edit') {
-                        // ignore: avoid_print
-                        print('Edit selected for ${libraryItem.title}');
-                        // Navigate to edit page or show edit dialog
-                      } else if (value == 'delete') {
-                         // ignore: avoid_print
-                         print('Delete selected for ${libraryItem.title}');
-                          showDialog<String>(
-                            context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                              title: const Text("Alert"),
-                              content: const Text('Are you sure you want to delete this item?'),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, 'Cancel'),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    // Handle delete action
-                                    FocusScope.of(context).unfocus();
-                                    Navigator.pop(context, 'OK');
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                          );
-                      }
-                    },
-                    itemBuilder: (BuildContext context) {
-                      return [
-                        const PopupMenuItem<String>(
-                          value: 'edit',
-                          child: Text('Edit'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Text('Delete'),
-                        ),
-                      ];
-                    },
-                  )
-                ],
-              ),
-              Row(
-                children: [
-                  Image.network(
-                    'http://192.168.101.199:5173/server/src/uploads/${libraryItem.image}', // Replace with your image
-                    width: 60,
-                    height: 60,
-                    // fit: BoxFit.cover,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          libraryItem.title,
-                          style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                        const Divider(),
-                        // const SizedBox(height: 5),
-                        Text(
-                          libraryItem.description.length > 80
-                              ? '${libraryItem.description.substring(0, 80)}...' // Limit to 100 characters
-                              : libraryItem.description,
-                          style: const TextStyle(
-                              fontSize: 12, color: Colors.white),
-                        ),
-                        const SizedBox(height: 10),
-                        Text('Present by: ${libraryItem.author}',
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 12)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+        backgroundColor: Colors.white,
+        child: const Icon(Icons.add, color: Color(0xFF07837F),),
       ),
     );
   }
