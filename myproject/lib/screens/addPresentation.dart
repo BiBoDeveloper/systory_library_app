@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io'; // For working with File
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // For image picking
-import 'package:myproject/screens/item.dart'; // Assuming this is the next screen
+import 'package:myproject/screens/library_list.dart'; // Assuming this is the next screen
+import 'package:google_fonts/google_fonts.dart';
 
 class AddPresentation extends StatefulWidget {
   const AddPresentation({super.key});
@@ -352,15 +353,20 @@ class _AddPresentationState extends State<AddPresentation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Systory Library'),
-        backgroundColor: Colors.blue,
+        title: Text(
+          'Systory Library',
+          style: GoogleFonts.kanit(
+              textStyle: const TextStyle(
+                  fontWeight: FontWeight.w600, color: Colors.white)),
+        ),
+        backgroundColor: const Color(0xFF07837F),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back,color: Colors.white,),
           onPressed: () {
             Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (ctx) => const Item()),
-                    );
+              context,
+              MaterialPageRoute(builder: (context) => const LibraryList()),
+            );
           },
         ),
       ),
@@ -369,12 +375,13 @@ class _AddPresentationState extends State<AddPresentation> {
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.all(16.0), // Optional: Add padding around the content
+            padding: const EdgeInsets.all(
+                16.0), // Optional: Add padding around the content
             children: [
               // Button to Pick Image
               ElevatedButton(
                 onPressed: _pickImage,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07837F)),
                 child: const Text(
                   "Upload Image",
                   style: TextStyle(fontSize: 16, color: Colors.white),
@@ -391,7 +398,7 @@ class _AddPresentationState extends State<AddPresentation> {
                     )
                   : const Text("No image selected"),
               const SizedBox(height: 50),
-              
+
               // Name Input Field
               TextFormField(
                 decoration: const InputDecoration(
@@ -411,7 +418,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 },
               ),
               const SizedBox(height: 20),
-              
+
               // Description Input Field
               TextFormField(
                 decoration: const InputDecoration(
@@ -431,7 +438,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 },
               ),
               const SizedBox(height: 20),
-              
+
               // Reference Input Field
               TextFormField(
                 decoration: const InputDecoration(
@@ -451,18 +458,18 @@ class _AddPresentationState extends State<AddPresentation> {
                 },
               ),
               const SizedBox(height: 20),
-              
+
               // Button to Pick a File
               ElevatedButton(
                 onPressed: _pickImage,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07837F)),
                 child: const Text(
                   "Upload File",
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Section for Overview
               const Align(
                 alignment: Alignment.centerLeft,
@@ -475,7 +482,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 ),
               ),
               const SizedBox(height: 10),
-              
+
               // Description under Overview
               TextFormField(
                 decoration: const InputDecoration(
@@ -495,7 +502,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 },
               ),
               const SizedBox(height: 20),
-              
+
               // Section for Installation
               const Align(
                 alignment: Alignment.centerLeft,
@@ -508,7 +515,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 ),
               ),
               const SizedBox(height: 10),
-              
+
               // Description under Installation
               TextFormField(
                 decoration: const InputDecoration(
@@ -528,7 +535,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 },
               ),
               const SizedBox(height: 20),
-              
+
               // Section for Table Installations
               const Align(
                 alignment: Alignment.centerLeft,
@@ -541,7 +548,7 @@ class _AddPresentationState extends State<AddPresentation> {
               Container(
                 margin: const EdgeInsets.all(5),
                 child: Table(
-                  defaultColumnWidth: const FixedColumnWidth(90.0), 
+                  defaultColumnWidth: const FixedColumnWidth(90.0),
                   columnWidths: const {
                     0: FixedColumnWidth(90.0),
                     1: FixedColumnWidth(130.0),
@@ -555,21 +562,30 @@ class _AddPresentationState extends State<AddPresentation> {
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Title', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Title',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         Container(
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Description', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Description',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         Container(
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Example (Code)', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Example (Code)',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         const SizedBox.shrink(),
@@ -580,7 +596,8 @@ class _AddPresentationState extends State<AddPresentation> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -589,7 +606,8 @@ class _AddPresentationState extends State<AddPresentation> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -598,7 +616,8 @@ class _AddPresentationState extends State<AddPresentation> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -639,7 +658,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   ),
                 ),
               ),
-              
+
               // Description under Installation
               TextFormField(
                 decoration: const InputDecoration(
@@ -660,11 +679,10 @@ class _AddPresentationState extends State<AddPresentation> {
               ),
               const SizedBox(height: 20),
 
-
               Container(
                 margin: const EdgeInsets.all(5),
                 child: Table(
-                  defaultColumnWidth: const FixedColumnWidth(90.0), 
+                  defaultColumnWidth: const FixedColumnWidth(90.0),
                   columnWidths: const {
                     0: FixedColumnWidth(90.0),
                     1: FixedColumnWidth(130.0),
@@ -678,21 +696,30 @@ class _AddPresentationState extends State<AddPresentation> {
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Title', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Title',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         Container(
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Description', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Description',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         Container(
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Example (Code)', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Example (Code)',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         const SizedBox.shrink(),
@@ -703,7 +730,8 @@ class _AddPresentationState extends State<AddPresentation> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -712,7 +740,8 @@ class _AddPresentationState extends State<AddPresentation> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -721,7 +750,8 @@ class _AddPresentationState extends State<AddPresentation> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -763,7 +793,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 ),
               ),
               const SizedBox(height: 10),
-              
+
               // Description under Installation
               TextFormField(
                 decoration: const InputDecoration(
@@ -787,7 +817,7 @@ class _AddPresentationState extends State<AddPresentation> {
               Container(
                 margin: const EdgeInsets.all(5),
                 child: Table(
-                  defaultColumnWidth: const FixedColumnWidth(90.0), 
+                  defaultColumnWidth: const FixedColumnWidth(90.0),
                   columnWidths: const {
                     0: FixedColumnWidth(90.0),
                     1: FixedColumnWidth(130.0),
@@ -801,21 +831,30 @@ class _AddPresentationState extends State<AddPresentation> {
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Title', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Title',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         Container(
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Description', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Description',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         Container(
                           color: Colors.cyan,
                           child: const SizedBox(
                             height: 30.0,
-                            child: Center(child: Text('Example (Code)', style: TextStyle(fontSize: 12.0, color: Colors.white))),
+                            child: Center(
+                                child: Text('Example (Code)',
+                                    style: TextStyle(
+                                        fontSize: 12.0, color: Colors.white))),
                           ),
                         ),
                         const SizedBox.shrink(),
@@ -826,7 +865,8 @@ class _AddPresentationState extends State<AddPresentation> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -835,7 +875,8 @@ class _AddPresentationState extends State<AddPresentation> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -844,7 +885,8 @@ class _AddPresentationState extends State<AddPresentation> {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black, width: 0.1),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.1),
                             ),
                             child: SizedBox(
                               height: 30.0,
@@ -886,7 +928,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 ),
               ),
               const SizedBox(height: 10),
-              
+
               // Description under Installation
               TextFormField(
                 decoration: const InputDecoration(
@@ -907,7 +949,6 @@ class _AddPresentationState extends State<AddPresentation> {
               ),
               const SizedBox(height: 20),
 
-              
               // Submit Button
               ElevatedButton(
                 onPressed: () {
@@ -916,14 +957,16 @@ class _AddPresentationState extends State<AddPresentation> {
                     uploadData();
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (ctx) => const Item()),
+                      MaterialPageRoute(builder: (ctx) => const LibraryList()),
                     );
                   }
                 },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                child: const Text(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07837F)),
+                child: Text(
                   "Submit",
-                  style: TextStyle(fontSize: 20),
+                  style: GoogleFonts.kanit(
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.w600, color: Colors.white, fontSize: 20)),
                 ),
               ),
             ],
