@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io'; // For working with File
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // For image picking
@@ -12,39 +13,172 @@ class AddPresentation extends StatefulWidget {
 
 class _AddPresentationState extends State<AddPresentation> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  int _age = 20;
+  final String ipAddress = '192.168.101.199:3001';
+
+
+  String _userName = '';
+  String _libraryName = '';
+  String _description = '';
+  String _reference = '';
+  String _overviewDes = '';
+  String _installationDes = '';
+  String _howToUseDes = '';
+  String _exampleDes = '';
+  String _suggestionDes = '';
+  String _rowsInstallations = '';
+  String _rowsHowToUse = '';
+  String _rowsExample = '';
   File? _image; // Variable to hold the selected image
 
   List<List<String>> tableData = [
     ['', '', ''],
   ];
 
-  final TextEditingController websiteController = TextEditingController();
-  final TextEditingController tutorialController = TextEditingController();
-  final TextEditingController reviewController = TextEditingController();
+  List<List<String>> installationDes = [
+    ['', '', ''],
+  ];
 
-  void _removeRow(int index) {
-    setState(() {
-      tableData.removeAt(index); // Remove the row from the list
-    });
+  List<List<String>> rowsInstallations = [
+    ['', '', ''],
+  ];
+
+  List<List<String>> rowsHowToUse = [
+    ['', '', ''],
+  ];
+
+  List<List<String>> rowsExample = [
+    ['', '', ''],
+  ];
+
+  //for installation description
+  final TextEditingController installationDes_title = TextEditingController();
+  final TextEditingController installationDes_Des = TextEditingController();
+  final TextEditingController installationDes_Exam = TextEditingController();
+
+  //for how to use
+  final TextEditingController howToUse_title = TextEditingController();
+  final TextEditingController howToUse_Des = TextEditingController();
+  final TextEditingController howToUse_Exam = TextEditingController();
+  
+  //for example
+  final TextEditingController example_title = TextEditingController();
+  final TextEditingController example_Des = TextEditingController();
+  final TextEditingController example_Exam = TextEditingController();
+  
+  get http => null;
+
+    Future<void> uploadData() async {
+      print("GG");
+    // Create a map of data to send
+    Map<String, dynamic> data = {
+      'userName': _userName,
+      'libraryName': _libraryName,
+      'description': _description,
+      'reference': _reference,
+      'overviewDes': _overviewDes,
+      'installationDes': _installationDes,
+      'howToUseDes': _howToUseDes,
+      'exampleDes': _exampleDes,
+      'suggestionDes': _suggestionDes,
+      'rowsInstallations': _rowsInstallations,
+      'rowsHowToUse': _rowsHowToUse,
+      'rowsExample': _rowsExample,
+    };
+
+    // Encode the data as JSON
+    String jsonData = jsonEncode(data);
+
+    // Create a multipart request
+    var uri = Uri.parse('http://$ipAddress/addLibrary');
+    var request = http.MultipartRequest('POST', uri);
+
+    // Add the JSON data as a form field
+    request.fields['data'] = jsonData;
+
+    // Add headers (optional, based on your backend requirements)
+    request.headers['Content-Type'] = 'multipart/form-data';
+
+    try {
+      // Send the request and await the response
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        // Successfully uploaded, refresh if needed
+        print('Upload successful!');
+        setState(() {
+          // Refresh logic if necessary
+        });
+      } else {
+        print('Failed to upload. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error uploading data: $e');
+    }
   }
 
-  void _addRow(String website, String tutorial, String review) {
-    setState(() {
-      if (tableData.length == 1) {
-        if (tableData[0][0] == "" && tableData[0][1] == "" && tableData[0][2] == "") {
-          tableData.removeAt(0);
+  void _removeRow(String type, int index) {
+    if (type == "installations") {
+      setState(() {
+        installationDes.removeAt(index); // Remove the row from the list
+      });
+    } else if (type == "how_to_use") {
+      setState(() {
+        installationDes.removeAt(index); // Remove the row from the list
+      });
+    } else if (type == "example") {
+      setState(() {
+        installationDes.removeAt(index); // Remove the row from the list
+      });
+    }
+  }
+
+  void _addRow(String type,String title, String description, String example) {
+    if (type == "installations") {
+        setState(() {
+        if (installationDes.length == 1) {
+          if (installationDes[0][0] == "" && installationDes[0][1] == "" && installationDes[0][2] == "") {
+            installationDes.removeAt(0);
+          }
+          installationDes.add([title, description, example]);
+          installationDes.add(['', '', '']);
+        }  else if (installationDes.length > 1) {
+          installationDes.insert(installationDes.length - 1,[title, description, example]);
+        } else {
+          installationDes.add([title, description, example]);
+          installationDes.add(['', '', '']);
         }
-        tableData.add([website, tutorial, review]);
-        tableData.add(['', '', '']);
-      }  else if (tableData.length > 1) {
-        tableData.insert(tableData.length - 1,[website, tutorial, review]);
-      } else {
-        tableData.add([website, tutorial, review]);
-        tableData.add(['', '', '']);
-      }
-    });
+      });
+    } else if (type == "how_to_use") {
+      setState(() {
+        if (rowsHowToUse.length == 1) {
+          if (rowsHowToUse[0][0] == "" && rowsHowToUse[0][1] == "" && rowsHowToUse[0][2] == "") {
+            rowsHowToUse.removeAt(0);
+          }
+          rowsHowToUse.add([title, description, example]);
+          rowsHowToUse.add(['', '', '']);
+        }  else if (rowsHowToUse.length > 1) {
+          rowsHowToUse.insert(rowsHowToUse.length - 1,[title, description, example]);
+        } else {
+          rowsHowToUse.add([title, description, example]);
+          rowsHowToUse.add(['', '', '']);
+        }
+      });
+    } else if (type == "example") {
+      setState(() {
+        if (rowsExample.length == 1) {
+          if (rowsExample[0][0] == "" && rowsExample[0][1] == "" && rowsExample[0][2] == "") {
+            rowsExample.removeAt(0);
+          }
+          rowsExample.add([title, description, example]);
+          rowsExample.add(['', '', '']);
+        }  else if (rowsExample.length > 1) {
+          rowsExample.insert(rowsExample.length - 1,[title, description, example]);
+        } else {
+          rowsExample.add([title, description, example]);
+          rowsExample.add(['', '', '']);
+        }
+      });
+    }
   }
 
   // Method to pick an image from gallery or camera
@@ -59,55 +193,159 @@ class _AddPresentationState extends State<AddPresentation> {
     }
   }
 
-  void _showAddRowDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Add New Row"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: websiteController,
-                decoration: const InputDecoration(labelText: "Title"),
+  void _showAddRowDialog(String type) {
+    if (type == "installations") {
+      // display the installations popup
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Add installations"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: installationDes_title,
+                  decoration: const InputDecoration(labelText: "Title"),
+                ),
+                TextField(
+                  controller: installationDes_Des,
+                  decoration: const InputDecoration(labelText: "Description"),
+                ),
+                TextField(
+                  controller: installationDes_Exam,
+                  decoration: const InputDecoration(labelText: "Example(code)"),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-              TextField(
-                controller: tutorialController,
-                decoration: const InputDecoration(labelText: "Description"),
-              ),
-              TextField(
-                controller: reviewController,
-                decoration: const InputDecoration(labelText: "Example(code)"),
+              ElevatedButton(
+                child: const Text("Add"),
+                onPressed: () {
+                  _addRow(
+                    "installations",
+                    installationDes_title.text,
+                    installationDes_Des.text,
+                    installationDes_Exam.text,
+                  );
+                  // Clear the input fields and close the dialog
+                  installationDes_title.clear();
+                  installationDes_Des.clear();
+                  installationDes_Exam.clear();
+                  Navigator.of(context).pop();
+                },
               ),
             ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("Cancel"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+          );
+        },
+      );
+    } else if (type == "how_to_use") {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Add how to use"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: howToUse_title,
+                  decoration: const InputDecoration(labelText: "Title"),
+                ),
+                TextField(
+                  controller: howToUse_Des,
+                  decoration: const InputDecoration(labelText: "Description"),
+                ),
+                TextField(
+                  controller: howToUse_Exam,
+                  decoration: const InputDecoration(labelText: "Example(code)"),
+                ),
+              ],
             ),
-            ElevatedButton(
-              child: const Text("Add"),
-              onPressed: () {
-                _addRow(
-                  websiteController.text,
-                  tutorialController.text,
-                  reviewController.text,
-                );
-                // Clear the input fields and close the dialog
-                websiteController.clear();
-                tutorialController.clear();
-                reviewController.clear();
-                Navigator.of(context).pop();
-              },
+            actions: <Widget>[
+              TextButton(
+                child: const Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              ElevatedButton(
+                child: const Text("Add"),
+                onPressed: () {
+                  _addRow(
+                    "how_to_use",
+                    howToUse_title.text,
+                    howToUse_Des.text,
+                    howToUse_Exam.text,
+                  );
+                  // Clear the input fields and close the dialog
+                  howToUse_title.clear();
+                  howToUse_Des.clear();
+                  howToUse_Exam.clear();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else if (type == "example") {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Add example"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: example_title,
+                  decoration: const InputDecoration(labelText: "Title"),
+                ),
+                TextField(
+                  controller: example_Des,
+                  decoration: const InputDecoration(labelText: "Description"),
+                ),
+                TextField(
+                  controller: example_Exam,
+                  decoration: const InputDecoration(labelText: "Example(code)"),
+                ),
+              ],
             ),
-          ],
-        );
-      },
-    );
+            actions: <Widget>[
+              TextButton(
+                child: const Text("Cancel"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              ElevatedButton(
+                child: const Text("Add"),
+                onPressed: () {
+                  _addRow(
+                    "example",
+                    example_title.text,
+                    example_Des.text,
+                    example_Exam.text,
+                  );
+                  // Clear the input fields and close the dialog
+                  example_title.clear();
+                  example_Des.clear();
+                  example_Exam.clear();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -119,10 +357,10 @@ class _AddPresentationState extends State<AddPresentation> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Item()),
-            );
+            Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (ctx) => const Item()),
+                    );
           },
         ),
       ),
@@ -169,7 +407,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   return null;
                 },
                 onSaved: (value) {
-                  _name = value!;
+                  _libraryName = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -189,7 +427,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   return null;
                 },
                 onSaved: (value) {
-                  _age = int.tryParse(value.toString()) ?? 0;
+                  _description = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -209,7 +447,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   return null;
                 },
                 onSaved: (value) {
-                  _age = int.tryParse(value.toString()) ?? 0;
+                  _reference = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -253,7 +491,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   return null;
                 },
                 onSaved: (value) {
-                  _age = int.tryParse(value.toString()) ?? 0;
+                  _overviewDes = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -286,7 +524,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   return null;
                 },
                 onSaved: (value) {
-                  _age = int.tryParse(value.toString()) ?? 0;
+                  _installationDes = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -337,7 +575,7 @@ class _AddPresentationState extends State<AddPresentation> {
                         const SizedBox.shrink(),
                       ],
                     ),
-                    for (int i = 0; i < tableData.length; i++)
+                    for (int i = 0; i < installationDes.length; i++)
                       TableRow(
                         children: [
                           Container(
@@ -346,7 +584,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][0], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(installationDes[i][0], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           Container(
@@ -355,7 +593,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][1], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(installationDes[i][1], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           Container(
@@ -364,7 +602,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][2], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(installationDes[i][2], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           SizedBox(
@@ -374,7 +612,7 @@ class _AddPresentationState extends State<AddPresentation> {
                                 icon: const Icon(Icons.close),
                                 iconSize: 12.0,
                                 onPressed: () {
-                                  _removeRow(i);
+                                  _removeRow("installations",i);
                                 },
                               ),
                             ),
@@ -385,7 +623,9 @@ class _AddPresentationState extends State<AddPresentation> {
                 ),
               ),
               ElevatedButton(
-                onPressed: _showAddRowDialog,
+                onPressed: () {
+                  _showAddRowDialog("installations");
+                },
                 child: const Text("Add New Row", style: TextStyle(fontSize: 16.0)),
               ),
 
@@ -415,7 +655,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   return null;
                 },
                 onSaved: (value) {
-                  _age = int.tryParse(value.toString()) ?? 0;
+                  _howToUseDes = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -458,7 +698,7 @@ class _AddPresentationState extends State<AddPresentation> {
                         const SizedBox.shrink(),
                       ],
                     ),
-                    for (int i = 0; i < tableData.length; i++)
+                    for (int i = 0; i < rowsHowToUse.length; i++)
                       TableRow(
                         children: [
                           Container(
@@ -467,7 +707,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][0], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(rowsHowToUse[i][0], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           Container(
@@ -476,7 +716,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][1], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(rowsHowToUse[i][1], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           Container(
@@ -485,7 +725,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][2], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(rowsHowToUse[i][2], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           SizedBox(
@@ -495,7 +735,7 @@ class _AddPresentationState extends State<AddPresentation> {
                                 icon: const Icon(Icons.close),
                                 iconSize: 12.0,
                                 onPressed: () {
-                                  _removeRow(i);
+                                  _removeRow("how_to_use",i);
                                 },
                               ),
                             ),
@@ -506,7 +746,9 @@ class _AddPresentationState extends State<AddPresentation> {
                 ),
               ),
               ElevatedButton(
-                onPressed: _showAddRowDialog,
+                onPressed: () {
+                  _showAddRowDialog("how_to_use");
+                },
                 child: const Text("Add New Row", style: TextStyle(fontSize: 16.0)),
               ),
 
@@ -537,7 +779,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   return null;
                 },
                 onSaved: (value) {
-                  _age = int.tryParse(value.toString()) ?? 0;
+                  _exampleDes = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -579,7 +821,7 @@ class _AddPresentationState extends State<AddPresentation> {
                         const SizedBox.shrink(),
                       ],
                     ),
-                    for (int i = 0; i < tableData.length; i++)
+                    for (int i = 0; i < rowsExample.length; i++)
                       TableRow(
                         children: [
                           Container(
@@ -588,7 +830,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][0], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(rowsExample[i][0], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           Container(
@@ -597,7 +839,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][1], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(rowsExample[i][1], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           Container(
@@ -606,7 +848,7 @@ class _AddPresentationState extends State<AddPresentation> {
                             ),
                             child: SizedBox(
                               height: 30.0,
-                              child: Center(child: Text(tableData[i][2], style: const TextStyle(fontSize: 12.0))),
+                              child: Center(child: Text(rowsExample[i][2], style: const TextStyle(fontSize: 12.0))),
                             ),
                           ),
                           SizedBox(
@@ -616,7 +858,7 @@ class _AddPresentationState extends State<AddPresentation> {
                                 icon: const Icon(Icons.close),
                                 iconSize: 12.0,
                                 onPressed: () {
-                                  _removeRow(i);
+                                  _removeRow("example",i);
                                 },
                               ),
                             ),
@@ -627,7 +869,9 @@ class _AddPresentationState extends State<AddPresentation> {
                 ),
               ),
               ElevatedButton(
-                onPressed: _showAddRowDialog,
+                onPressed: () {
+                  _showAddRowDialog("example");
+                },
                 child: const Text("Add New Row", style: TextStyle(fontSize: 12.0)),
               ),
 
@@ -658,7 +902,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   return null;
                 },
                 onSaved: (value) {
-                  _age = int.tryParse(value.toString()) ?? 0;
+                  _suggestionDes = value!;
                 },
               ),
               const SizedBox(height: 20),
@@ -669,6 +913,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
+                    uploadData();
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (ctx) => const Item()),
