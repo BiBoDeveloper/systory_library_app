@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // For image picking
 import 'package:myproject/screens/library_list.dart'; // Assuming this is the next screen
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class AddPresentation extends StatefulWidget {
   const AddPresentation({super.key});
@@ -14,7 +15,6 @@ class AddPresentation extends StatefulWidget {
 
 class _AddPresentationState extends State<AddPresentation> {
   final _formKey = GlobalKey<FormState>();
-  final String ipAddress = '192.168.101.199:3001';
 
 
   String _userName = '';
@@ -66,56 +66,70 @@ class _AddPresentationState extends State<AddPresentation> {
   final TextEditingController example_Des = TextEditingController();
   final TextEditingController example_Exam = TextEditingController();
   
-  get http => null;
+  // get http => null;
 
-    Future<void> uploadData() async {
-      print("GG");
-    // Create a map of data to send
-    Map<String, dynamic> data = {
-      'userName': _userName,
-      'libraryName': _libraryName,
-      'description': _description,
-      'reference': _reference,
-      'overviewDes': _overviewDes,
-      'installationDes': _installationDes,
-      'howToUseDes': _howToUseDes,
-      'exampleDes': _exampleDes,
-      'suggestionDes': _suggestionDes,
-      'rowsInstallations': _rowsInstallations,
-      'rowsHowToUse': _rowsHowToUse,
-      'rowsExample': _rowsExample,
-    };
+  // Method to pick an image from gallery or camera
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    // Encode the data as JSON
-    String jsonData = jsonEncode(data);
-
-    // Create a multipart request
-    var uri = Uri.parse('http://$ipAddress/addLibrary');
-    var request = http.MultipartRequest('POST', uri);
-
-    // Add the JSON data as a form field
-    request.fields['data'] = jsonData;
-
-    // Add headers (optional, based on your backend requirements)
-    request.headers['Content-Type'] = 'multipart/form-data';
-
-    try {
-      // Send the request and await the response
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-        // Successfully uploaded, refresh if needed
-        print('Upload successful!');
-        setState(() {
-          // Refresh logic if necessary
-        });
-      } else {
-        print('Failed to upload. Status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error uploading data: $e');
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
     }
   }
+
+  Future<void> uploadData() async {
+  print("-------GG-----------");
+
+  // Create a map of data to send
+  Map<String, dynamic> data = {
+    'userName': _userName,
+    'libraryName': _libraryName,
+    'description': _description,
+    'reference': _reference,
+    'overviewDes': _overviewDes,
+    'installationDes': _installationDes,
+    'howToUseDes': _howToUseDes,
+    'exampleDes': _exampleDes,
+    'suggestionDes': _suggestionDes,
+    'rowsInstallations': _rowsInstallations,
+    'rowsHowToUse': _rowsHowToUse,
+    'rowsExample': _rowsExample,
+  };
+
+  // final uri = Uri.parse('http://10.0.2.2:3000/addLibrary');
+  final uri = Uri.parse('http://192.168.101.199:3001/addLibrary');
+  final request = http.MultipartRequest('POST', uri);
+  File? imageFile = _image;
+
+  if (imageFile != null) {
+    request.files.add(
+      http.MultipartFile(
+        'image',
+        imageFile.readAsBytes().asStream(),
+        imageFile.lengthSync(),
+        filename: imageFile.path.split('/').last,
+      ),
+    );
+  }
+
+  // Add text fields data to the request as JSON
+  request.fields['data'] = jsonEncode(data);
+
+  // Send the request
+  final response = await request.send();
+
+  if (response.statusCode == 200) {
+    final res = await http.Response.fromStream(response);
+    final responseData = jsonDecode(res.body);
+    print('Upload successful: $responseData');
+  } else {
+    print('Upload failed with status: ${response.statusCode}');
+  }
+}
+
 
   void _removeRow(String type, int index) {
     if (type == "installations") {
@@ -182,17 +196,6 @@ class _AddPresentationState extends State<AddPresentation> {
     }
   }
 
-  // Method to pick an image from gallery or camera
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
 
   void _showAddRowDialog(String type) {
     if (type == "installations") {
@@ -400,7 +403,7 @@ class _AddPresentationState extends State<AddPresentation> {
               const SizedBox(height: 50),
 
               // Name Input Field
-              TextFormField(
+               TextFormField(
                 decoration: const InputDecoration(
                   label: Text(
                     "Library Name",
@@ -409,7 +412,7 @@ class _AddPresentationState extends State<AddPresentation> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Please enter your name";
+                    return "Please enter your Description";
                   }
                   return null;
                 },
