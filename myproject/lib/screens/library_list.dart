@@ -19,6 +19,18 @@ class LibraryList extends StatefulWidget {
   _LibraryListState createState() => _LibraryListState();
 }
 
+// class Attachment {
+//   final int size;
+//   final String filename;
+//   final String originalName;
+
+//   Attachment({
+//     required this.size,
+//     required this.filename,
+//     required this.originalName,
+//   });
+// }
+
 class _LibraryListState extends State<LibraryList> {
   // List of library items
   // final List<LibraryItem> allLibraryItems = List.generate(
@@ -56,33 +68,41 @@ class _LibraryListState extends State<LibraryList> {
         List<dynamic> data = jsonDecode(response.body);
         // ignore: avoid_print
         print(data);
+        // List<Attachment> attachments = data.map((item){
+        //   return Attachment(size: item['size'], filename: item['filename'], originalName: item['originalName']);
+        // }).toList();
+        // // ignore: avoid_print
+        // print('attachments: $attachments');
 
         // Map the JSON to the LibraryItem model
         List<LibraryItem> fetchedItems = data.map((item) {
-          return LibraryItem(
-            title: item['LIB_NAME'],
-            description: item['DESCRIPTION'],
-            author: item['CREATE_BY'],
-            image: item['IMAGE'],
-            id: item['LIB_ID'].toString(),
-          );
           // return LibraryItem(
-          //   libName: item['LIB_NAME'],
-          //   description: item['DESCRIPTION'] ?? '',
-          //   createdBy: item['CREATE_BY'] ?? '',
-          //   image: item['IMAGE'] ?? '',
-          //   libId: item['LIB_ID'],
-          //   reference: item['REFERENCE'] ?? '',
-          //   descriptionsOver: item['DESCRIPTIONS_OVER'] ?? '',
-          //   descriptionsIns: item['DESCRIPTIONS_INS'] ?? '',
-          //   descriptionsHtu: item['DESCRIPTIONS_HTU'] ?? '',
-          //   descriptionsExp: item['DESCRIPTIONS_EXP'] ?? '',
-          //   descriptionsSgt: item['DESCRIPTIONS_SGT'] ?? '',
-          //   attachment: [],
-          //   installation: item['INSTALLATION'],
-          //   howToUse: item['HOWTOUSE'],
-          //   example: item['EXAMPLE'],
+          //   title: item['LIB_NAME'],
+          //   description: item['DESCRIPTION'],
+          //   author: item['CREATE_BY'],
+          //   image: item['IMAGE'],
+          //   id: item['LIB_ID'].toString(),
           // );
+          print(item['ATTRACHMENT']);
+          // String hhh = jsonDecode(item['ATTRACHMENT']);
+          // List<Attachment> attachments = item['ATTRACHMENT'];
+          return LibraryItem(
+            libName: item['LIB_NAME'],
+            description: item['DESCRIPTION'] ?? '',
+            createdBy: item['CREATE_BY'] ?? '',
+            image: item['IMAGE'] ?? '',
+            libId: item['LIB_ID'],
+            reference: item['REFERENCE'] ?? '',
+            descriptionsOver: item['DESCRIPTIONS_OVER'] ?? '',
+            descriptionsIns: item['DESCRIPTIONS_INS'] ?? '',
+            descriptionsHtu: item['DESCRIPTIONS_HTU'] ?? '',
+            descriptionsExp: item['DESCRIPTIONS_EXP'] ?? '',
+            descriptionsSgt: item['DESCRIPTIONS_SGT'] ?? '',
+            // attachment: jsonDecode(item['ATTRACHMENT']),
+            // installation: item['INSTALLATION'] ?? '',
+            // howToUse: item['HOWTOUSE'] ?? '',
+            // example: item['EXAMPLE'] ?? '',
+          );
         }).toList();
         
 
@@ -102,6 +122,16 @@ class _LibraryListState extends State<LibraryList> {
     }
   }
 
+  // Future<void> deleteLibrary() async {
+  //   try {
+  //     final url = Uri.parse('http://192.168.101.199:3001/delete/library/');
+  //     await http.get(url);
+  //     fetchLibraryItems();
+  //   } catch (e) {
+  //     print('Error fetching data: $e');
+  //   }
+  // }
+
   void _filterLibraryList(String query) {
     // If the search query is empty, show all items
     if (query.isEmpty) {
@@ -112,7 +142,7 @@ class _LibraryListState extends State<LibraryList> {
       setState(() {
         filteredLibraryItems = allLibraryItems
             .where((item) =>
-                item.title.toLowerCase().contains(query.toLowerCase()))
+                item.libName.toLowerCase().contains(query.toLowerCase()))
             .toList();
       });
     }
@@ -234,7 +264,8 @@ class _LibraryListState extends State<LibraryList> {
                           itemCount: filteredLibraryItems.length,
                           itemBuilder: (context, index) {
                             return LibraryItemCard(
-                                libraryItem: filteredLibraryItems[index]);
+                                libraryItem: filteredLibraryItems[index],
+                                onDelete: fetchLibraryItems,);
                           },
                         ),
                 ),

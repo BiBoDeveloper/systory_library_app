@@ -1,26 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:myproject/screens/detail.dart';
+// import 'package:myproject/screens/library_list.dart';
+import 'package:http/http.dart' as http;
 
+// class LibraryItem {
+//   final String title;
+//   final String description;
+//   final String author;
+//   final String image;
+//   final String id;
 
+//   LibraryItem({
+//     required this.libName,
+//     required this.description,
+//     required this.createdBy,
+//     required this.image,
+//     required this.id,
+//   });
+// }
 class LibraryItem {
-  final String title;
+  final int libId;
+  final String libName;
   final String description;
-  final String author;
+  final String reference;
+  final String descriptionsOver;
+  final String descriptionsIns;
+  final String descriptionsHtu;
+  final String descriptionsExp;
+  final String descriptionsSgt;
   final String image;
-  final String id;
+  final String createdBy;
+  // final String attachment;
+  // final String installation;
+  // final String howToUse;
+  // final String example;
 
   LibraryItem({
-    required this.title,
+    required this.libId,
+    required this.libName,
     required this.description,
-    required this.author,
+    required this.reference,
+    required this.descriptionsOver,
+    required this.descriptionsIns,
+    required this.descriptionsHtu,
+    required this.descriptionsExp,
+    required this.descriptionsSgt,
     required this.image,
-    required this.id,
+    required this.createdBy,
+    // required this.attachment,
+    // required this.installation,
+    // required this.howToUse,
+    // required this.example,
   });
 }
+
 class LibraryItemCard extends StatelessWidget {
-  
+  final Function() onDelete;
   final LibraryItem libraryItem;
-  const LibraryItemCard({super.key, required this.libraryItem});
+  const LibraryItemCard(
+      {super.key, required this.libraryItem, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +67,14 @@ class LibraryItemCard extends StatelessWidget {
         // ignore: avoid_print
         FocusScope.of(context).unfocus(); // Unfocus any input fields
         // ignore: avoid_print
-        print('Card tap: ${libraryItem.title}');
+        // print('Card tap: ${libraryItem.libName}');
+        var libId = (libraryItem.libId).toString();
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (ctx) => const Detail()));
+            context,
+            MaterialPageRoute(
+                builder: (ctx) => Detail(
+                      libraryId: libId,
+                    )));
       },
       child: Card(
         color: const Color(0x9907837F),
@@ -56,11 +99,11 @@ class LibraryItemCard extends StatelessWidget {
                       FocusScope.of(context).unfocus();
                       if (value == 'edit') {
                         // ignore: avoid_print
-                        print('Edit selected for ${libraryItem.title}');
+                        print('Edit selected for ${libraryItem.libName}');
                         // Navigate to edit page or show edit dialog
                       } else if (value == 'delete') {
                         // ignore: avoid_print
-                        print('Delete selected for ${libraryItem.title}');
+                        print('Delete selected for ${libraryItem.libName}');
                         showDialog<String>(
                           context: context,
                           builder: (BuildContext context) => AlertDialog(
@@ -74,9 +117,13 @@ class LibraryItemCard extends StatelessWidget {
                                 child: const Text('Cancel'),
                               ),
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   // Handle delete action
                                   FocusScope.of(context).unfocus();
+                                  final url = Uri.parse(
+                                      'http://192.168.101.199:3001/delete/library/${libraryItem.libId}');
+                                  await http.delete(url);
+                                  onDelete();
                                   Navigator.pop(context, 'OK');
                                 },
                                 child: const Text('OK'),
@@ -115,7 +162,7 @@ class LibraryItemCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          libraryItem.title,
+                          libraryItem.libName,
                           style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -131,7 +178,7 @@ class LibraryItemCard extends StatelessWidget {
                               fontSize: 12, color: Colors.white),
                         ),
                         const SizedBox(height: 10),
-                        Text('Present by: ${libraryItem.author}',
+                        Text('Present by: ${libraryItem.createdBy}',
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 12)),
                       ],

@@ -1,6 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:myproject/screens/code_box.dart';
 import 'package:myproject/screens/library_list.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+
+Future<void> downloadFile(String url, String filename) async {
+  try {
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String savePath = '${appDocDir.path}/$filename';
+
+    await Dio().download(url, savePath);
+    print('File downloaded to $savePath');
+  } catch (e) {
+    print('Error downloading file: $e');
+  }
+}
+
+class DownloadLink extends StatelessWidget {
+  final String fileName;
+  final String fileUrl;
+
+  const DownloadLink(
+      {super.key, required this.fileName, required this.fileUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await downloadFile(fileUrl, fileName);
+        // Optionally, show a message or open the file
+      },
+      child: Text(
+        fileName,
+        style: const TextStyle(
+          color: Colors.blue,
+          decoration: TextDecoration.underline,
+        ),
+      ),
+    );
+  }
+}
 
 class LibraryData {
   final int libId;
@@ -91,22 +135,91 @@ class Example {
     required this.description,
   });
 }
-class Detail extends StatelessWidget {
-  // final LibraryData libraryData;
-  const Detail({super.key});
+
+class Detail extends StatefulWidget {
+  final String libraryId;
+  const Detail({super.key, required this.libraryId});
+
+  @override
+  State<Detail> createState() => _DetailState();
+}
+
+class _DetailState extends State<Detail> {
+  bool isLoading = true;
+  List<dynamic> library = [];
+  final ScrollController _scrollController = ScrollController();
+
+  final GlobalKey _overviewKey = GlobalKey();
+  final GlobalKey _installationKey = GlobalKey();
+  final GlobalKey _howToUseKey = GlobalKey();
+  final GlobalKey _exampleKey = GlobalKey();
+  final GlobalKey _suggestionKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchLibraryItems(); // Fetch data when the screen is initialized
+    // print('Filtered item count: ${filteredLibraryItems.length}');
+  }
+
+  // Function to scroll to the specific section
+  void _scrollToSection(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500), // Smooth scroll animation
+        alignment: 0.1,
+      );
+    }
+  }
+
+  // Function to fetch data from the server
+  Future<void> fetchLibraryItems() async {
+    // print('id:::::> $libraryId')
+    setState(() {
+      isLoading = true; // Set loading to true
+    });
+    final url =
+        Uri.parse('http://192.168.101.199:3001/getLibrary/${widget.libraryId}');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        // Decode JSON data
+        List<dynamic> data = jsonDecode(response.body);
+        // ignore: avoid_print
+        print('response=====> $data');
+        setState(() {
+          // Set initial filtered list
+          library = data;
+          isLoading = false; // Set loading to false
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (error) {
+      print('Error fetching data: $error');
+      setState(() {
+        isLoading = false; // Set loading to false even if there's an error
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Docker',
+          '${library[0]['LIB_NAME']}',
           style: GoogleFonts.kanit(
               textStyle: const TextStyle(
                   fontWeight: FontWeight.w600, color: Colors.white)),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white,),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (ctx) => const LibraryList()));
@@ -122,34 +235,21 @@ class Detail extends StatelessWidget {
             onSelected: (value) {
               FocusScope.of(context).unfocus();
               if (value == 'edit') {
-                // ignore: avoid_print
-                // print('Edit selected for ${libraryItem.title}');
-                // Navigate to edit page or show edit dialog
+                // Handle edit action
               } else if (value == 'delete') {
-                // ignore: avoid_print
-                // print('Delete selected for ${libraryItem.title}');
-                showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: const Text("Alert"),
-                    content: const Text(
-                        'Are you sure you want to delete this item?'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, 'Cancel'),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Handle delete action
-                          FocusScope.of(context).unfocus();
-                          Navigator.pop(context, 'OK');
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
+                // Handle delete action
+              } else if (value == 'overview') {
+                _scrollToSection(_overviewKey); // Scroll to Overview section
+              } else if (value == 'installation') {
+                _scrollToSection(
+                    _installationKey); // Scroll to Installation section
+              } else if (value == 'howtouse') {
+                _scrollToSection(_howToUseKey); // Scroll to How to Use section
+              } else if (value == 'example') {
+                _scrollToSection(_exampleKey); // Scroll to Example section
+              } else if (value == 'suggestion') {
+                _scrollToSection(
+                    _suggestionKey); // Scroll to Suggestion section
               }
             },
             itemBuilder: (BuildContext context) {
@@ -179,100 +279,143 @@ class Detail extends StatelessWidget {
           )
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Center(
-            child: Column(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
               children: [
-                Image.network(
-                  'http://192.168.101.199:5173/server/src/uploads/1726801030051-Docker-Symbol.png',
-                  height: 100,
+                Center(
+                  child: Column(
+                    children: [
+                      Image.network(
+                        'http://192.168.101.199:5173/server/src/uploads/${library[0]['IMAGE']}',
+                        height: 100,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        '${library[0]['LIB_NAME']}',
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+                Text("Overview",
+                    key: _overviewKey, // Assign GlobalKey
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800],
+                    )),
+                SectionContent('${library[0]['DESCRIPTION'] ?? ''}'),
+                const SizedBox(height: 16),
+                Text("Installation",
+                    key: _installationKey, // Assign GlobalKey
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800],
+                    )),
+                SectionContent('${library[0]['DESCRIPTIONS_INS'] ?? ''}'),
+                ListView.builder(
+                  shrinkWrap:
+                      true, // Ensures that the inner ListView takes only as much space as needed
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Prevents inner ListView from scrolling independently
+                  itemCount: library[0]['INSTALLATION'].length,
+                  itemBuilder: (context, index) {
+                    var items = library[0]['INSTALLATION'][index];
+                    return CodeBox(
+                        code: items['example'],
+                        title: items['title'],
+                        description: items['description']);
+                    // return Text(items['title']);
+                  },
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Docker',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Text("How to use",
+                    key: _howToUseKey, // Assign GlobalKey
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800],
+                    )),
+                SectionContent('${library[0]['DESCRIPTIONS_HTU'] ?? ''}'),
+                ListView.builder(
+                  shrinkWrap:
+                      true, // Ensures that the inner ListView takes only as much space as needed
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Prevents inner ListView from scrolling independently
+                  itemCount: library[0]['HOWTOUSE'].length,
+                  itemBuilder: (context, index) {
+                    var items = library[0]['HOWTOUSE'][index];
+                    return CodeBox(
+                        code: items['example'],
+                        title: items['title'],
+                        description: items['description']);
+                    // return Text(items['title']);
+                  },
                 ),
+                Text("Example",
+                    key: _exampleKey, // Assign GlobalKey
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800],
+                    )),
+                SectionContent('${library[0]['DESCRIPTIONS_HTU'] ?? ''}'),
+                ListView.builder(
+                  shrinkWrap:
+                      true, // Ensures that the inner ListView takes only as much space as needed
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Prevents inner ListView from scrolling independently
+                  itemCount: library[0]['EXAMPLE'].length,
+                  itemBuilder: (context, index) {
+                    var items = library[0]['EXAMPLE'][index];
+                    return CodeBox(
+                        code: items['example'],
+                        title: items['title'],
+                        description: items['description']);
+                    // return Text(items['title']);
+                  },
+                ),
+                Text("Suggestion",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800],
+                    )),
+                SectionContent('${library[0]['DESCRIPTIONS_SGT'] ?? ''}'),
                 const SizedBox(height: 16),
+                Text("Attachments",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800],
+                    )),
+                ListView.builder(
+                  shrinkWrap:
+                      true, // Ensures that the inner ListView takes only as much space as needed
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Prevents inner ListView from scrolling independently
+                  itemCount: library[0]['ATTRACHMENT'].length,
+                  itemBuilder: (context, index) {
+                    var items = library[0]['ATTRACHMENT'][index];
+                    return DownloadLink(
+                      fileName: items['filename'],
+                      fileUrl:
+                          'http://192.168.101.199:5173/server/src/uploads/${items['filename']}',
+                    );
+                    // return Text(items['title']);
+                  },
+                ),
               ],
             ),
-          ),
-          Text(
-            "Overview",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal[800],
-            )
-          ),
-          const SectionContent(
-              'Docker is a platform for developing, shipping, and running '
-              'applications inside lightweight, portable containers. Initially '
-              'developed by Solomon Hykes at DotCloud, it was open-sourced in 2013, '
-              'allowing rapid adoption with its innovative containerization technology.'),
-          const SizedBox(height: 16),
-          Text(
-            "Installation",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal[800],
-            )
-          ),
-          const SectionContent(
-              '1. Download Docker desktop from the official website: https://www.docker.com\n'
-              '2. Run the installer and follow the instructions.\n'
-              'Supported OS: Windows, macOS, Linux.'),
-          const SizedBox(height: 16),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                // Command to check docker version
-              },
-              child: const Text('Check docker'),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            "How to use",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal[800],
-            )
-          ),
-          const SectionContent(
-              'Docker simplifies the process of creating, deploying, and managing applications by using containers. '
-              'Containers bundle everything needed to run, allowing for consistent performance across environments.'),
-          Text(
-            "Example",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal[800],
-            )
-          ),
-          const SectionContent(
-              'Docker simplifies the process of creating, deploying, and managing applications by using containers. '
-              'Containers bundle everything needed to run, allowing for consistent performance across environments.'),
-          Text(
-            "Suggestion",
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.teal[800],
-            )
-          ),
-          const SectionContent(
-              'Docker simplifies the process of creating, deploying, and managing applications by using containers. '
-              'Containers bundle everything needed to run, allowing for consistent performance across environments.'),
-        ],
-      ),
     );
   }
 }
-
 
 class SectionContent extends StatelessWidget {
   final String content;
