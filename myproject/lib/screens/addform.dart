@@ -1,6 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:myproject/models/person.dart';
 import 'package:myproject/screens/library_list.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async'; // For concurrency support
+import 'dart:isolate'; // For creating threads
 
 class AddForm extends StatefulWidget {
   const AddForm({super.key});
@@ -14,6 +18,40 @@ class _AddFormState extends State<AddForm> {
   String _name = '';
   int _age = 20;
   Job _job = Job.police;
+
+    String _howToUseDes = '';
+  String _exampleDes = '';
+  String _suggestionDes = '';
+
+  Future<void> addUser() async {
+    var url = 'http://10.0.2.2:3000/add-library';
+    var response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'how_touse': _howToUseDes,
+        'example': _exampleDes,
+        'suggestion': _job.title,
+      }),
+    );
+    if (response.statusCode == 200) {
+      print('User added');
+    } else {
+      print('Failed to add user');
+    }
+    // const url = 'http://10.0.2.2:3000/test';
+    // final uri = Uri.parse(url);
+
+    // try {
+
+    // final response = await http.get(uri);
+    // var list = json.decode(response.body);
+
+    // print("response ${response.body}");
+    // } catch (e) {
+    //   print(e);
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +80,7 @@ class _AddFormState extends State<AddForm> {
                   return null;
                 },
                 onSaved: (value) {
-                  _name = value!;
+                  _howToUseDes = value!;
                 },
               ),
               TextFormField(
@@ -59,7 +97,7 @@ class _AddFormState extends State<AddForm> {
                     return null;
                   },
                   onSaved: (value) {
-                    _age = int.tryParse(value.toString()) ?? 0;
+                    _exampleDes = value!;
                   }),
               const SizedBox(
                 height: 20,
@@ -89,12 +127,13 @@ class _AddFormState extends State<AddForm> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
+                      addUser();
                       data.add(Person(name: _name, age: _age, job: _job));
                       _formKey.currentState!.reset();
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (ctx) => const LibraryList()));
+                      // Navigator.pushReplacement(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (ctx) => const LibraryList()));
                     }
                   },
                   style: FilledButton.styleFrom(backgroundColor: Colors.blue),
