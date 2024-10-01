@@ -1,140 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+// import 'package:http/http.dart';
 import 'package:myproject/screens/code_box.dart';
 import 'package:myproject/screens/library_list.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-
-Future<void> downloadFile(String url, String filename) async {
-  try {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String savePath = '${appDocDir.path}/$filename';
-
-    await Dio().download(url, savePath);
-    print('File downloaded to $savePath');
-  } catch (e) {
-    print('Error downloading file: $e');
-  }
-}
-
-class DownloadLink extends StatelessWidget {
-  final String fileName;
-  final String fileUrl;
-
-  const DownloadLink(
-      {super.key, required this.fileName, required this.fileUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        await downloadFile(fileUrl, fileName);
-        // Optionally, show a message or open the file
-      },
-      child: Text(
-        fileName,
-        style: const TextStyle(
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-        ),
-      ),
-    );
-  }
-}
-
-class LibraryData {
-  final int libId;
-  final String libName;
-  final String description;
-  final String reference;
-  final String descriptionsOver;
-  final String descriptionsIns;
-  final String descriptionsHtu;
-  final String descriptionsExp;
-  final String descriptionsSgt;
-  final String image;
-  final String createdBy;
-  final List<Attachment> attachment;
-  final List<Installation> installation;
-  final List<HowToUse> howToUse;
-  final List<Example> example;
-
-  LibraryData({
-    required this.libId,
-    required this.libName,
-    required this.description,
-    required this.reference,
-    required this.descriptionsOver,
-    required this.descriptionsIns,
-    required this.descriptionsHtu,
-    required this.descriptionsExp,
-    required this.descriptionsSgt,
-    required this.image,
-    required this.createdBy,
-    required this.attachment,
-    required this.installation,
-    required this.howToUse,
-    required this.example,
-  });
-}
-
-class Attachment {
-  final int size;
-  final String filename;
-  final String originalName;
-
-  Attachment({
-    required this.size,
-    required this.filename,
-    required this.originalName,
-  });
-}
-
-class Installation {
-  final int id;
-  final String title;
-  final String example;
-  final String description;
-
-  Installation({
-    required this.id,
-    required this.title,
-    required this.example,
-    required this.description,
-  });
-}
-
-class HowToUse {
-  final int id;
-  final String title;
-  final String example;
-  final String description;
-
-  HowToUse({
-    required this.id,
-    required this.title,
-    required this.example,
-    required this.description,
-  });
-}
-
-class Example {
-  final int id;
-  final String title;
-  final String example;
-  final String description;
-
-  Example({
-    required this.id,
-    required this.title,
-    required this.example,
-    required this.description,
-  });
-}
+// import 'package:flutter_file_downloader/flutter_file_downloader.dart';
+// import 'package:file_downloader_flutter/file_downloader_flutter.dart';
+// import 'package:dio/dio.dart';
+// import 'package:path_provider/path_provider.dart';
+// import 'dart:io';
 
 class Detail extends StatefulWidget {
   final String libraryId;
@@ -174,6 +51,35 @@ class _DetailState extends State<Detail> {
     }
   }
 
+  void downloadFile(String url) async {
+    //  Uri uri = Uri.parse(url);
+    //  var time = DateTime.now().millisecondsSinceEpoch;
+    //  var path = "/storage/emulated/0/download/1727448023765-School_aid_expense_template.csv";
+    //  var file = File(path);
+    //  var res = await get(uri);
+    //  file.writeAsBytes(res.bodyBytes);
+
+    //  FileDownloader.downloadFile(
+    //   url: url,
+    //   onDownloadError: (String error){
+    //     print('Download error : $error');
+    //   },
+    //   onDownloadCompleted: (path) {
+    //     final File file = File(path);
+    //     print(file);
+
+    //   },
+    //   );
+
+    // Check if the URL can be launched
+    // if (await canLaunchUrl(uri)) {
+    //   // Launch the URL
+    //   await launchUrl(uri, mode: LaunchMode.externalApplication);
+    // } else {
+    //   throw 'Could not launch $url';
+    // }
+  }
+
   // Function to fetch data from the server
   Future<void> fetchLibraryItems() async {
     // print('id:::::> $libraryId')
@@ -182,6 +88,7 @@ class _DetailState extends State<Detail> {
     });
     final url =
         Uri.parse('http://192.168.101.199:3001/getLibrary/${widget.libraryId}');
+    // Uri.parse('http://192.168.101.29:3000/getLibrary/${widget.libraryId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -334,7 +241,7 @@ class _DetailState extends State<Detail> {
                     // return Text(items['title']);
                   },
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
                 Text("How to use",
                     key: _howToUseKey, // Assign GlobalKey
                     style: TextStyle(
@@ -358,6 +265,7 @@ class _DetailState extends State<Detail> {
                     // return Text(items['title']);
                   },
                 ),
+                const SizedBox(height: 16),
                 Text("Example",
                     key: _exampleKey, // Assign GlobalKey
                     style: TextStyle(
@@ -403,10 +311,30 @@ class _DetailState extends State<Detail> {
                   itemCount: library[0]['ATTRACHMENT'].length,
                   itemBuilder: (context, index) {
                     var items = library[0]['ATTRACHMENT'][index];
-                    return DownloadLink(
-                      fileName: items['filename'],
-                      fileUrl:
-                          'http://192.168.101.199:5173/server/src/uploads/${items['filename']}',
+                    return GestureDetector(
+                      onTap: () {
+                        downloadFile(
+                            // 'http://192.168.101.29:5173/server/src/uploads/${items['filename']}');
+                            'http://192.168.101.29:5173/server/src/uploads/${items['filename']}');
+                        // FileDownloader.downloadFile(
+                        //   url: 'http://192.168.101.29:5173/server/src/uploads/1726716880173-Flutter_widget.txt',
+                        //   onDownloadError: (String error) {
+                        //     print('Download error : $error');
+                        //   },
+                        //   onDownloadCompleted: (path) {
+                        //     final File file = File(path);
+                        //     print(file);
+                        //   },
+                        // );
+                        
+                      },
+                      child: Text(
+                        items['filename'],
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
                     );
                     // return Text(items['title']);
                   },

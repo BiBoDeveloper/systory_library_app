@@ -23,7 +23,7 @@ class CodeBox extends StatelessWidget {
               color: Color.fromARGB(255, 78, 78, 78),
             )),
         SectionContent(description),
-        Container(
+        code != '' ? Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: const Color.fromARGB(
@@ -44,8 +44,7 @@ class CodeBox extends StatelessWidget {
                 ),
               ),
               const Divider(),
-              const SizedBox(
-                  height: 10.0), // Add spacing between header and code
+              const SizedBox(height: 10.0), // Add spacing between header and code
               // Code display area
               SizedBox(
                 child: SingleChildScrollView(
@@ -60,8 +59,10 @@ class CodeBox extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-        ),
+          )
+        ) 
+        :
+        const SizedBox(),
         const SizedBox(height: 10,)
       ],
     );
