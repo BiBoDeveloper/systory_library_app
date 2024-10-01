@@ -17,7 +17,7 @@ class _AddPresentationState extends State<AddPresentation> {
   final _formKey = GlobalKey<FormState>();
 
 
-  String _userName = '';
+  final String _userName = '';
   String _libraryName = '';
   String _description = '';
   String _reference = '';
@@ -26,9 +26,9 @@ class _AddPresentationState extends State<AddPresentation> {
   String _howToUseDes = '';
   String _exampleDes = '';
   String _suggestionDes = '';
-  String _rowsInstallations = '';
-  String _rowsHowToUse = '';
-  String _rowsExample = '';
+  final String _rowsInstallations = '';
+  final String _rowsHowToUse = '';
+  final String _rowsExample = '';
   File? _image; // Variable to hold the selected image
 
   List<List<String>> tableData = [

@@ -171,8 +171,8 @@ class LibraryItemCard extends StatelessWidget {
                         const Divider(),
                         // const SizedBox(height: 5),
                         Text(
-                          libraryItem.description.length > 80
-                              ? '${libraryItem.description.substring(0, 80)}...' // Limit to 100 characters
+                          libraryItem.description.length > 90
+                              ? '${libraryItem.description.substring(0, 90)}...' // Limit to 100 characters
                               : libraryItem.description,
                           style: const TextStyle(
                               fontSize: 12, color: Colors.white),
