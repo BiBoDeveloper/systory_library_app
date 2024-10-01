@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io'; // For working with File
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // For image picking
+import 'package:myproject/screens/detail.dart';
 import 'package:myproject/screens/library_list.dart'; // Assuming this is the next screen
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -9,15 +10,52 @@ import 'package:http/http.dart' as http;
 import 'package:myproject/screens/installation_table.dart';
 import 'dialog_utils.dart';
 
+class MyData {
+  String title;
+  String description;
+  String example;
 
-class AddPresentation extends StatefulWidget {
-  const AddPresentation({super.key});
+  MyData({
+    required this.title,
+    required this.description,
+    required this.example,
+  });
 
-  @override
-  State<AddPresentation> createState() => _AddPresentationState();
+  // Factory constructor to create an instance from JSON
+  factory MyData.fromJson(Map<String, dynamic> json) {
+    return MyData(
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      example: json['example'] ?? '',
+    );
+  }
+
+  // Method to convert an instance to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'example': example,
+    };
+  }
 }
 
-class _AddPresentationState extends State<AddPresentation> {
+
+class EditPresentation extends StatefulWidget {
+  const EditPresentation({super.key, required this.libraryId});
+  final String libraryId;
+
+  @override
+  State<EditPresentation> createState() => _EditPresentationState();
+}
+
+class _EditPresentationState extends State<EditPresentation> {
+
+  bool isLoading = true;
+  List<dynamic> library = [];
+  List<dynamic> INSTALLATION_DATA = [];
+  List<dynamic> HOWTOUSE_DATA = [];
+  List<dynamic> EXAMPLE_DES = [];
 
   final _userName = TextEditingController();
   final _libraryName = TextEditingController();
@@ -28,6 +66,7 @@ class _AddPresentationState extends State<AddPresentation> {
   final _howToUseDes = TextEditingController();
   final _exampleDes = TextEditingController();
   final _suggestionDes = TextEditingController();
+  String _defaultImage = "";
   File? _image; // Variable to hold the selected image
 
 
@@ -43,6 +82,13 @@ class _AddPresentationState extends State<AddPresentation> {
     {'title' :'','description' : '','example' : ''},
   ];
 
+   @override
+  void initState() {
+    super.initState();
+    fetchLibraryItems(); // Fetch data when the screen is initialized
+    // print('Filtered item count: ${filteredLibraryItems.length}');
+  }
+
   // Method to pick an image from gallery or camera
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -51,6 +97,87 @@ class _AddPresentationState extends State<AddPresentation> {
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  // Function to fetch data from the server
+  Future<void> fetchLibraryItems() async {
+    setState(() {
+      isLoading = true; // Set loading to true
+    });
+    final url =
+        Uri.parse('http://10.0.2.2:3000/getLibrary/${widget.libraryId}');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        // Decode JSON data
+        List<dynamic> data = jsonDecode(response.body);
+        // ignore: avoid_print
+        print('response=====> $data');
+        setState(() {
+          // Set initial filtered list
+          library = data;
+
+          if (library.isNotEmpty) {
+            _libraryName.text = library[0]["LIB_NAME"] ?? '';
+            _description.text = library[0]["DESCRIPTION"] ?? '';
+            _reference.text = library[0]["REFERENCE"] ?? '';
+            _overviewDes.text = library[0]["DESCRIPTIONS_OVER"] ?? '';
+            _installationDes.text = library[0]["DESCRIPTIONS_INS"] ?? '';
+            _howToUseDes.text = library[0]["DESCRIPTIONS_HTU"] ?? '';
+            _exampleDes.text = library[0]["DESCRIPTIONS_EXP"] ?? '';
+            _suggestionDes.text = library[0]["DESCRIPTIONS_SGT"] ?? '';
+            _defaultImage = library[0]["IMAGE"] ?? '';
+            INSTALLATION_DATA = jsonDecode(library[0]["INSTALLATION"]) ?? '';
+            HOWTOUSE_DATA = jsonDecode(library[0]["HOWTOUSE"]) ?? '';
+            EXAMPLE_DES = jsonDecode(library[0]["EXAMPLE"]) ?? '';
+          }
+            if (INSTALLATION_DATA.isNotEmpty) {
+              rowsInstallations.removeAt(0);
+              for (var i in INSTALLATION_DATA) {
+                rowsInstallations.add({
+                  'title': i["title"],
+                  'description': i["description"],
+                  'example': i["example"]
+                });
+              }
+              rowsInstallations.add({'title' : '', 'description' : '', 'example' : '' });
+            }
+
+            if (HOWTOUSE_DATA.isNotEmpty) {
+              rowsHowToUse.removeAt(0);
+              for (var i in HOWTOUSE_DATA) {
+                rowsHowToUse.add({
+                  'title': i["title"],
+                  'description': i["description"],
+                  'example': i["example"]
+                });
+              }
+              rowsHowToUse.add({'title' : '', 'description' : '', 'example' : '' });
+            }
+
+            if (EXAMPLE_DES.isNotEmpty) {
+              rowsExample.removeAt(0);
+              for (var i in EXAMPLE_DES) {
+                rowsExample.add({
+                  'title': i["title"],  
+                  'description': i["description"],
+                  'example': i["example"]
+                });
+              }
+              rowsExample.add({'title' : '', 'description' : '', 'example' : '' });
+            }
+
+          isLoading = false; // Set loading to false
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (error) {
+      print('Error fetching data: $error');
+      setState(() {
+        isLoading = false; // Set loading to false even if there's an error
       });
     }
   }
@@ -74,11 +201,12 @@ class _AddPresentationState extends State<AddPresentation> {
       'rowsInstallations': rowsInstallations,
       'rowsHowToUse': rowsHowToUse,
       'rowsExample': rowsExample,
+      'defaultImage' : _defaultImage,
     };
 
-    final uri = Uri.parse('http://10.0.2.2:3000/mobile_addLibrary');
+    final uri = Uri.parse('http://10.0.2.2:3000/mobile_update_library/${widget.libraryId}');
     // final uri = Uri.parse('http://192.168.101.199:3001/addLibrary');
-    final request = http.MultipartRequest('POST', uri);
+    final request = http.MultipartRequest('PUT', uri);
     File? imageFile = _image;
 
     if (imageFile != null) {
@@ -101,9 +229,9 @@ class _AddPresentationState extends State<AddPresentation> {
     if (response.statusCode == 200) {
       final res = await http.Response.fromStream(response);
       final responseData = jsonDecode(res.body);
-      print('Upload successful: $responseData');
+      print('Update successful: $responseData');
     } else {
-      print('Upload failed with status: ${response.statusCode}');
+      print('Update failed with status: ${response.statusCode}');
     }
 }
 
@@ -199,7 +327,9 @@ class _AddPresentationState extends State<AddPresentation> {
       ),
 
       //body
-      body: Padding(
+      body: isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
         padding: const EdgeInsets.all(15),
         child: Form(
           child: ListView(
@@ -223,7 +353,12 @@ class _AddPresentationState extends State<AddPresentation> {
                         width: 200,
                         fit: BoxFit.cover,
                       )
-                    : const Text("No image selected"),
+                    : Image.network(
+                    'http://10.0.2.2/server/uploads/${_defaultImage}', // Replace with your image
+                    width: 200,
+                    height: 200,
+                    // fit: BoxFit.cover,
+                  ),
                 const SizedBox(height: 50),
 
                 // Name Input Field
@@ -465,7 +600,7 @@ class _AddPresentationState extends State<AddPresentation> {
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF07837F)),
                   child: Text(
-                    "Submit",
+                    "Update",
                     style: GoogleFonts.kanit(
                         textStyle: const TextStyle(
                             fontWeight: FontWeight.w600, color: Colors.white, fontSize: 20)),

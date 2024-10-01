@@ -61,13 +61,16 @@ class _LibraryListState extends State<LibraryList> {
     setState(() {
       isLoading = true; // Set loading to true
     });
-    final url = Uri.parse('http://192.168.101.199:3001/');
+    // final url = Uri.parse('http://192.168.101.199:3001/');
+    final url = Uri.parse('http://10.0.2.2:3000/librarys');
     try {
       final response = await http.get(url);
+      print(response.statusCode);
       if (response.statusCode == 200) {
         // Decode JSON data
         List<dynamic> data = jsonDecode(response.body);
         // ignore: avoid_print
+        print("data");
         print(data);
         // List<Attachment> attachments = data.map((item){
         //   return Attachment(size: item['size'], filename: item['filename'], originalName: item['originalName']);

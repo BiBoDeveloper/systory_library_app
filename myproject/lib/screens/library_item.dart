@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myproject/screens/detail.dart';
 // import 'package:myproject/screens/library_list.dart';
 import 'package:http/http.dart' as http;
+import 'package:myproject/screens/editPresentation.dart';
 
 // class LibraryItem {
 //   final String title;
@@ -100,6 +101,13 @@ class LibraryItemCard extends StatelessWidget {
                       if (value == 'edit') {
                         // ignore: avoid_print
                         print('Edit selected for ${libraryItem.libName}');
+                        var libId = (libraryItem.libId).toString();
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (ctx) => EditPresentation(
+                                      libraryId: libId,
+                                    )));
                         // Navigate to edit page or show edit dialog
                       } else if (value == 'delete') {
                         // ignore: avoid_print
@@ -151,7 +159,7 @@ class LibraryItemCard extends StatelessWidget {
               Row(
                 children: [
                   Image.network(
-                    'http://192.168.101.199:5173/server/src/uploads/${libraryItem.image}', // Replace with your image
+                    'http://10.0.2.2/server/uploads/${libraryItem.image}', // Replace with your image
                     width: 60,
                     height: 60,
                     // fit: BoxFit.cover,
