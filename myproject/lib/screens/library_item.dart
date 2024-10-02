@@ -159,7 +159,8 @@ class LibraryItemCard extends StatelessWidget {
               Row(
                 children: [
                   Image.network(
-                    'http://10.0.2.2/server/uploads/${libraryItem.image}', // Replace with your image
+                    // 'http://10.0.2.2/server/uploads/${libraryItem.image}', // Replace with your image
+                    'http://192.168.101.199:5173/server/src/uploads/${libraryItem.image}', // Replace with your image
                     width: 60,
                     height: 60,
                     // fit: BoxFit.cover,

@@ -7,10 +7,11 @@ import 'package:myproject/screens/code_box.dart';
 import 'package:myproject/screens/library_list.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+// import 'package:flutter_downloader/flutter_downloader.dart';
 // import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 // import 'package:file_downloader_flutter/file_downloader_flutter.dart';
 // import 'package:dio/dio.dart';
-// import 'package:path_provider/path_provider.dart';
+import 'package:path_provider/path_provider.dart';
 // import 'dart:io';
 
 class Detail extends StatefulWidget {
@@ -54,22 +55,26 @@ class _DetailState extends State<Detail> {
   void downloadFile(String url) async {
     //  Uri uri = Uri.parse(url);
     //  var time = DateTime.now().millisecondsSinceEpoch;
-    //  var path = "/storage/emulated/0/download/1727448023765-School_aid_expense_template.csv";
+    //  var path = "/storage/emulated/0/download/file.csv";
     //  var file = File(path);
     //  var res = await get(uri);
     //  file.writeAsBytes(res.bodyBytes);
 
-    //  FileDownloader.downloadFile(
-    //   url: url,
-    //   onDownloadError: (String error){
-    //     print('Download error : $error');
-    //   },
-    //   onDownloadCompleted: (path) {
-    //     final File file = File(path);
-    //     print(file);
+  //   final directory = await getExternalStorageDirectory();
+  // // return '${directory!.path}/Download';
 
-    //   },
-    //   );
+  //    FileDownloader.downloadFile(
+  //     url: url,
+  //     onDownloadError: (String error){
+  //       print('Download error : $error');
+  //     },
+  //     onDownloadCompleted: (String path) {
+  //       // final File file = File(path);
+  //       // print(file);
+  //       print('FILE DOWNLOADED TO PATH: $path');
+
+  //     },
+  //     );
 
     // Check if the URL can be launched
     // if (await canLaunchUrl(uri)) {
@@ -78,6 +83,18 @@ class _DetailState extends State<Detail> {
     // } else {
     //   throw 'Could not launch $url';
     // }
+
+// Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
+//   String appDocumentsPath = appDocumentsDirectory.path;
+//   print('pathhhhhhh::: $appDocumentsPath');
+//     await FlutterDownloader.enqueue(
+//       url: url,
+//       savedDir: appDocumentsPath,
+//       showNotification:
+//           true, // show download progress in status bar (for Android)
+//       openFileFromNotification:
+//           true, // click on notification to open downloaded file (for Android)
+//     );
   }
 
   // Function to fetch data from the server
@@ -326,7 +343,6 @@ class _DetailState extends State<Detail> {
                         //     print(file);
                         //   },
                         // );
-                        
                       },
                       child: Text(
                         items['filename'],
