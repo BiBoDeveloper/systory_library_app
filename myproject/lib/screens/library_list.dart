@@ -125,15 +125,15 @@ class _LibraryListState extends State<LibraryList> {
     }
   }
 
-  // Future<void> deleteLibrary() async {
-  //   try {
-  //     final url = Uri.parse('http://192.168.101.199:3001/delete/library/');
-  //     await http.get(url);
-  //     fetchLibraryItems();
-  //   } catch (e) {
-  //     print('Error fetching data: $e');
-  //   }
-  // }
+  Future<void> deleteLibrary() async {
+    try {
+      final url = Uri.parse('http://192.168.101.199:3001/delete/library/');
+      await http.get(url);
+      fetchLibraryItems();
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
 
   void _filterLibraryList(String query) {
     // If the search query is empty, show all items
