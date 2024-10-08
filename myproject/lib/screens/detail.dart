@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // import 'package:http/http.dart';
@@ -32,6 +34,7 @@ class _DetailState extends State<Detail> {
   final GlobalKey _howToUseKey = GlobalKey();
   final GlobalKey _exampleKey = GlobalKey();
   final GlobalKey _suggestionKey = GlobalKey();
+  Map<int, bool> isDownloading = {};
 
   @override
   void initState() {
@@ -52,50 +55,78 @@ class _DetailState extends State<Detail> {
     }
   }
 
-  void downloadFile(String url) async {
-    //  Uri uri = Uri.parse(url);
-    //  var time = DateTime.now().millisecondsSinceEpoch;
-    //  var path = "/storage/emulated/0/download/file.csv";
-    //  var file = File(path);
-    //  var res = await get(uri);
-    //  file.writeAsBytes(res.bodyBytes);
+  void downloadFile(String url, String fileName, int index) async {
+    setState(() {
+      isDownloading[index] = true; // Show the downloading icon
+    });
+  try {
+    // Create a HttpClient instance
+    HttpClient httpClient = HttpClient();
 
-  //   final directory = await getExternalStorageDirectory();
-  // // return '${directory!.path}/Download';
+    // Create the request
+    HttpClientRequest request = await httpClient.getUrl(Uri.parse(url));
 
-  //    FileDownloader.downloadFile(
-  //     url: url,
-  //     onDownloadError: (String error){
-  //       print('Download error : $error');
-  //     },
-  //     onDownloadCompleted: (String path) {
-  //       // final File file = File(path);
-  //       // print(file);
-  //       print('FILE DOWNLOADED TO PATH: $path');
+    // Send the request and get the response
+    HttpClientResponse response = await request.close();
 
-  //     },
-  //     );
+    // If the response status is successful (200)
+    if (response.statusCode == 200) {
+      // Get the directory for Android or iOS
+      Directory? directory = await getPublicDirectory();
+      if (directory != null) {
+        String filePath = '${directory.path}/$fileName';
 
-    // Check if the URL can be launched
-    // if (await canLaunchUrl(uri)) {
-    //   // Launch the URL
-    //   await launchUrl(uri, mode: LaunchMode.externalApplication);
-    // } else {
-    //   throw 'Could not launch $url';
-    // }
+        // Create a file in the public directory (e.g., Downloads)
+        File file = File(filePath);
 
-// Directory appDocumentsDirectory = await getApplicationDocumentsDirectory();
-//   String appDocumentsPath = appDocumentsDirectory.path;
-//   print('pathhhhhhh::: $appDocumentsPath');
-//     await FlutterDownloader.enqueue(
-//       url: url,
-//       savedDir: appDocumentsPath,
-//       showNotification:
-//           true, // show download progress in status bar (for Android)
-//       openFileFromNotification:
-//           true, // click on notification to open downloaded file (for Android)
-//     );
+        // Save the response as bytes and write it to the file
+        Uint8List bytes = await consolidateHttpClientResponseBytes(response);
+        await file.writeAsBytes(bytes);
+
+        print('File downloaded and saved to: ${file.path}');
+        
+      } else {
+        print('Could not access public directory');
+      }
+    } else {
+      print('Failed to download file. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error downloading file: $e');
+  } finally {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Download $fileName successfully')),
+    );
+    setState(() {
+        isDownloading[index] = false; // Switch back to the download icon
+    });
   }
+}
+
+// Get the public directory where the file should be saved
+Future<Directory?> getPublicDirectory() async {
+  try {
+    if (Platform.isAndroid) {
+      // For Android, use the Downloads directory
+      Directory directory = Directory('/storage/emulated/0/Download');
+      if (!(await directory.exists())) {
+        directory.create(recursive: true);
+      }
+      return directory;
+    } else if (Platform.isIOS) {
+      // For iOS, get the Documents directory (which appears in the Files app)
+      Directory directory = await getApplicationDocumentsDirectory();
+      return directory;
+    } else {
+      return null;
+    }
+  } catch (e) {
+    print('Error accessing public directory: $e');
+    return null;
+  }
+}
+
+
 
   // Function to fetch data from the server
   Future<void> fetchLibraryItems() async {
@@ -105,7 +136,7 @@ class _DetailState extends State<Detail> {
     });
     final url =
         Uri.parse('http://192.168.101.199:3001/getLibrary/${widget.libraryId}');
-    // Uri.parse('http://192.168.101.29:3000/getLibrary/${widget.libraryId}');
+    // Uri.parse('http://192.168.101.1999:3000/getLibrary/${widget.libraryId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -117,6 +148,10 @@ class _DetailState extends State<Detail> {
           // Set initial filtered list
           library = data;
           isLoading = false; // Set loading to false
+          for (int i = 0; i < library[0]['ATTRACHMENT'].length; i++) {
+            isDownloading[i] = false; // Initially, nothing is downloading
+          }
+          print('isdownloading=====> $isDownloading');
         });
       } else {
         throw Exception('Failed to load data');
@@ -139,17 +174,20 @@ class _DetailState extends State<Detail> {
               textStyle: const TextStyle(
                   fontWeight: FontWeight.w600, color: Colors.white)),
         ),
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (ctx) => const LibraryList()));
-          },
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(
+        //     Icons.arrow_back,
+        //     color: Colors.white,
+        //   ),
+        //   onPressed: () {
+        //     Navigator.pushReplacement(context,
+        //         MaterialPageRoute(builder: (ctx) => const LibraryList()));
+        //   },
+        // ),
         backgroundColor: Colors.teal[800],
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Change this to your desired color
+        ),
         actions: [
           PopupMenuButton<String>(
             icon: const Icon(
@@ -158,11 +196,7 @@ class _DetailState extends State<Detail> {
             ),
             onSelected: (value) {
               FocusScope.of(context).unfocus();
-              if (value == 'edit') {
-                // Handle edit action
-              } else if (value == 'delete') {
-                // Handle delete action
-              } else if (value == 'overview') {
+              if (value == 'overview') {
                 _scrollToSection(_overviewKey); // Scroll to Overview section
               } else if (value == 'installation') {
                 _scrollToSection(
@@ -328,33 +362,59 @@ class _DetailState extends State<Detail> {
                   itemCount: library[0]['ATTRACHMENT'].length,
                   itemBuilder: (context, index) {
                     var items = library[0]['ATTRACHMENT'][index];
-                    return GestureDetector(
-                      onTap: () {
-                        downloadFile(
-                            // 'http://192.168.101.29:5173/server/src/uploads/${items['filename']}');
-                            'http://192.168.101.29:5173/server/src/uploads/${items['filename']}');
-                        // FileDownloader.downloadFile(
-                        //   url: 'http://192.168.101.29:5173/server/src/uploads/1726716880173-Flutter_widget.txt',
-                        //   onDownloadError: (String error) {
-                        //     print('Download error : $error');
-                        //   },
-                        //   onDownloadCompleted: (path) {
-                        //     final File file = File(path);
-                        //     print(file);
-                        //   },
-                        // );
-                      },
-                      child: Text(
-                        items['filename'],
-                        style: const TextStyle(
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
-                        ),
+                    return Container(
+                      margin: const EdgeInsets.all(5),
+                      // color: const Color.fromARGB(96, 173, 173, 173),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                              items['filename'],
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              downloadFile(
+                                  'http://192.168.101.199:5173/server/src/uploads/${items['filename']}', items['filename'], index);
+                              
+                            },
+                            child: isDownloading[index]!
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                    strokeWidth:2,
+                                    color: Colors.black,
+                                ), // Show progress indicator when downloading
+                              )
+                            : const Icon(
+                                Icons.download
+                              ),
+                          ),
+                          
+                        ],
+                        
                       ),
                     );
                     // return Text(items['title']);
                   },
                 ),
+
+                const SizedBox(height: 16),
+                Text("Reference",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800],
+                    )),
+                SectionContent('${library[0]['REFERENCE'] ?? ''}'),
+
+                Text("Create by",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[800],
+                    )),
+                SectionContent('${library[0]['name'] ?? ''}'),
               ],
             ),
     );

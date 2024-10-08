@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:myproject/screens/library_list.dart';
+import 'package:localstorage/localstorage.dart';
 // Required for BackdropFilter
 
 
@@ -55,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       // API URL
       var url = Uri.parse('http://192.168.101.199:3001/getUser');
-      // var url = Uri.parse('http://192.168.101.29:3000/getUser');
+      // var url = Uri.parse('http://192.168.101.1999:3000/getUser');
       
       // Make HTTP POST request
       var response = await http.post(
@@ -70,14 +71,18 @@ class _LoginPageState extends State<LoginPage> {
       );
       
       if (response.statusCode == 200) {
+        await initLocalStorage();
         var data = jsonDecode(response.body);
         if (data.length == 1) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                 const SnackBar(content: Text("Login Successful")),
-              );
-              Navigator.pushReplacement(context, MaterialPageRoute(
-                  builder: (ctx) => const LibraryList())
-              );
+          localStorage.setItem('userId', data[0]['id'].toString());
+          localStorage.setItem('userName', data[0]['name']);
+          localStorage.setItem('userRole', data[0]['role']);
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Login Successful")),
+          );
+          Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (ctx) => const LibraryList())
+          );
         } else {
           checkPasswordIncorrect(context);
         }

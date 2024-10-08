@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 // import 'package:myproject/models/person.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:myproject/screens/addPresentation.dart';
 // import 'package:myproject/screens/detail.dart';
 import 'package:myproject/screens/loginPage.dart';
@@ -47,10 +48,19 @@ class _LibraryListState extends State<LibraryList> {
   // Filtered list for the search functionality
   List<LibraryItem> filteredLibraryItems = [];
   bool isLoading = true; // Initial loading state
+  // String userName = "";
+  // String userId = "";
+  // String userRole = "";
 
   @override
   void initState() {
     super.initState();
+    // initLocalStorage();
+    // userName = localStorage.getItem('userName') ?? "";
+    // userId = localStorage.getItem('userId') ?? "";
+    // userRole = localStorage.getItem('userRole') ?? "";
+    
+    // print('username: $userName, userId: $userId, userRole: $userRole');
     fetchLibraryItems(); // Fetch data when the screen is initialized
     // print('Filtered item count: ${filteredLibraryItems.length}');
   }
@@ -64,13 +74,13 @@ class _LibraryListState extends State<LibraryList> {
     // final url = Uri.parse('http://10.0.2.2:3000/librarys');
     try {
       final response = await http.get(url);
-      print(response.statusCode);
+      // print(response.statusCode);
       if (response.statusCode == 200) {
         // Decode JSON data
         List<dynamic> data = jsonDecode(response.body);
         // ignore: avoid_print
-        print("data");
-        print(data);
+        // print("data");
+        // print(data);
         // List<Attachment> attachments = data.map((item){
         //   return Attachment(size: item['size'], filename: item['filename'], originalName: item['originalName']);
         // }).toList();
@@ -101,6 +111,7 @@ class _LibraryListState extends State<LibraryList> {
             descriptionsHtu: item['DESCRIPTIONS_HTU'] ?? '',
             descriptionsExp: item['DESCRIPTIONS_EXP'] ?? '',
             descriptionsSgt: item['DESCRIPTIONS_SGT'] ?? '',
+            userName: item['name'] ?? '',
             // attachment: jsonDecode(item['ATTRACHMENT']),
             // installation: item['INSTALLATION'] ?? '',
             // howToUse: item['HOWTOUSE'] ?? '',
@@ -206,6 +217,9 @@ class _LibraryListState extends State<LibraryList> {
                         // Handle delete action
                         FocusScope.of(context).unfocus();
                         Navigator.pop(context, 'Yes');
+                        localStorage.removeItem('userName');
+                        localStorage.removeItem('userId');
+                        localStorage.removeItem('userRole');
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
@@ -268,7 +282,7 @@ class _LibraryListState extends State<LibraryList> {
                           itemBuilder: (context, index) {
                             return LibraryItemCard(
                                 libraryItem: filteredLibraryItems[index],
-                                onDelete: fetchLibraryItems,);
+                                onChange: fetchLibraryItems,);
                           },
                         ),
                 ),
@@ -280,8 +294,8 @@ class _LibraryListState extends State<LibraryList> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Handle button press for adding a new library item
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (ctx) => const AddPresentation()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (ctx) => AddPresentation(onAddPresentation: fetchLibraryItems)));
         },
         backgroundColor: Colors.white,
         child: const Icon(Icons.add, color: Color(0xFF07837F),),
