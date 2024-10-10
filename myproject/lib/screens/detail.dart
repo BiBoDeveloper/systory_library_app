@@ -4,17 +4,10 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:http/http.dart';
 import 'package:myproject/screens/code_box.dart';
-import 'package:myproject/screens/library_list.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import 'package:flutter_downloader/flutter_downloader.dart';
-// import 'package:flutter_file_downloader/flutter_file_downloader.dart';
-// import 'package:file_downloader_flutter/file_downloader_flutter.dart';
-// import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
-// import 'dart:io';
 
 class Detail extends StatefulWidget {
   final String libraryId;
@@ -40,7 +33,6 @@ class _DetailState extends State<Detail> {
   void initState() {
     super.initState();
     fetchLibraryItems(); // Fetch data when the screen is initialized
-    // print('Filtered item count: ${filteredLibraryItems.length}');
   }
 
   // Function to scroll to the specific section
@@ -81,17 +73,17 @@ class _DetailState extends State<Detail> {
 
         // Save the response as bytes and write it to the file
         Uint8List bytes = await consolidateHttpClientResponseBytes(response);
-        await file.writeAsBytes(bytes);
-
-        print('File downloaded and saved to: ${file.path}');
-        
+        await file.writeAsBytes(bytes);        
       } else {
+        // ignore: avoid_print
         print('Could not access public directory');
       }
     } else {
+      // ignore: avoid_print
       print('Failed to download file. Status code: ${response.statusCode}');
     }
   } catch (e) {
+    // ignore: avoid_print
     print('Error downloading file: $e');
   } finally {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -136,14 +128,12 @@ Future<Directory?> getPublicDirectory() async {
     });
     final url =
         Uri.parse('http://192.168.101.199:3001/getLibrary/${widget.libraryId}');
-    // Uri.parse('http://192.168.101.1999:3000/getLibrary/${widget.libraryId}');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         // Decode JSON data
         List<dynamic> data = jsonDecode(response.body);
         // ignore: avoid_print
-        print('response=====> $data');
         setState(() {
           // Set initial filtered list
           library = data;
@@ -151,7 +141,6 @@ Future<Directory?> getPublicDirectory() async {
           for (int i = 0; i < library[0]['ATTRACHMENT'].length; i++) {
             isDownloading[i] = false; // Initially, nothing is downloading
           }
-          print('isdownloading=====> $isDownloading');
         });
       } else {
         throw Exception('Failed to load data');
@@ -174,16 +163,6 @@ Future<Directory?> getPublicDirectory() async {
               textStyle: const TextStyle(
                   fontWeight: FontWeight.w600, color: Colors.white)),
         ),
-        // leading: IconButton(
-        //   icon: const Icon(
-        //     Icons.arrow_back,
-        //     color: Colors.white,
-        //   ),
-        //   onPressed: () {
-        //     Navigator.pushReplacement(context,
-        //         MaterialPageRoute(builder: (ctx) => const LibraryList()));
-        //   },
-        // ),
         backgroundColor: Colors.teal[800],
         iconTheme: const IconThemeData(
           color: Colors.white, // Change this to your desired color
@@ -289,10 +268,8 @@ Future<Directory?> getPublicDirectory() async {
                         code: items['example'],
                         title: items['title'],
                         description: items['description']);
-                    // return Text(items['title']);
                   },
                 ),
-                // const SizedBox(height: 16),
                 Text("How to use",
                     key: _howToUseKey, // Assign GlobalKey
                     style: TextStyle(
@@ -313,7 +290,6 @@ Future<Directory?> getPublicDirectory() async {
                         code: items['example'],
                         title: items['title'],
                         description: items['description']);
-                    // return Text(items['title']);
                   },
                 ),
                 const SizedBox(height: 16),
@@ -395,7 +371,6 @@ Future<Directory?> getPublicDirectory() async {
                         
                       ),
                     );
-                    // return Text(items['title']);
                   },
                 ),
 

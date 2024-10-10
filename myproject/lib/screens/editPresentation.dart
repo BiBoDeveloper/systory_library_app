@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'dart:io'; // For working with File
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // For image picking
-import 'package:myproject/screens/detail.dart';
+// import 'package:myproject/screens/detail.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:myproject/screens/library_list.dart'; // Assuming this is the next screen
+import 'package:myproject/screens/addExample.dart';
+// import 'package:myproject/screens/library_list.dart'; // Assuming this is the next screen
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:myproject/screens/installation_table.dart';
-import 'dialog_utils.dart';
 
 class MyData {
   String title;
@@ -60,7 +60,6 @@ class _EditPresentationState extends State<EditPresentation> {
   List<dynamic> defaultFiles = [];
   List<String> removedFiles = [];
 
-  final _userName = TextEditingController();
   final _libraryName = TextEditingController();
   final _description = TextEditingController();
   final _reference = TextEditingController();
@@ -70,27 +69,21 @@ class _EditPresentationState extends State<EditPresentation> {
   final _exampleDes = TextEditingController();
   final _suggestionDes = TextEditingController();
   String _defaultImage = "";
+  bool isEditing = false;
 
   File? _image; // Variable to hold the selected image
   List<File> _files = []; // Variable to hold the
 
-  List<Map<String, String>> rowsInstallations = [
-    {'title': '', 'description': '', 'example': ''},
-  ];
+  List<Map<String, String>> rowsInstallations = [];
 
-  List<Map<String, String>> rowsHowToUse = [
-    {'title': '', 'description': '', 'example': ''},
-  ];
+  List<Map<String, String>> rowsHowToUse = [];
 
-  List<Map<String, String>> rowsExample = [
-    {'title': '', 'description': '', 'example': ''},
-  ];
+  List<Map<String, String>> rowsExample = [];
 
   @override
   void initState() {
     super.initState();
     fetchLibraryItems(); // Fetch data when the screen is initialized
-    // print('Filtered item count: ${filteredLibraryItems.length}');
   }
 
   // Method to pick an image from gallery or camera
@@ -99,7 +92,6 @@ class _EditPresentationState extends State<EditPresentation> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      print('imageeeeeee:::> ${pickedFile.path}');
       setState(() {
         _image = File(pickedFile.path);
       });
@@ -116,16 +108,9 @@ class _EditPresentationState extends State<EditPresentation> {
       setState(() {
         _files = files;
       });
-      print('fileeeeeeeeee $_files');
     } else {
       print('No files selected');
     }
-  }
-
-  void _removeFile(int index) {
-    setState(() {
-      _files.removeAt(index);
-    });
   }
 
   // Function to fetch data from the server
@@ -139,10 +124,7 @@ class _EditPresentationState extends State<EditPresentation> {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         // Decode JSON data
-        List<dynamic> data = jsonDecode(response.body);
-        // ignore: avoid_print
-        print('response=====> $data');
-        
+        List<dynamic> data = jsonDecode(response.body);        
         setState(() {
           // Set initial filtered list
           library = data;
@@ -162,9 +144,7 @@ class _EditPresentationState extends State<EditPresentation> {
             EXAMPLE_DES = library[0]["EXAMPLE"] ?? [];
             defaultFiles = library[0]["ATTRACHMENT"] ?? [];
           }
-          print('attrachment=====> $defaultFiles');
           if (INSTALLATION_DATA.isNotEmpty) {
-            rowsInstallations.removeAt(0);
             for (var i in INSTALLATION_DATA) {
               rowsInstallations.add({
                 'title': i["title"],
@@ -172,12 +152,9 @@ class _EditPresentationState extends State<EditPresentation> {
                 'example': i["example"]
               });
             }
-            rowsInstallations
-                .add({'title': '', 'description': '', 'example': ''});
           }
 
           if (HOWTOUSE_DATA.isNotEmpty) {
-            rowsHowToUse.removeAt(0);
             for (var i in HOWTOUSE_DATA) {
               rowsHowToUse.add({
                 'title': i["title"],
@@ -185,11 +162,9 @@ class _EditPresentationState extends State<EditPresentation> {
                 'example': i["example"]
               });
             }
-            rowsHowToUse.add({'title': '', 'description': '', 'example': ''});
           }
 
           if (EXAMPLE_DES.isNotEmpty) {
-            rowsExample.removeAt(0);
             for (var i in EXAMPLE_DES) {
               rowsExample.add({
                 'title': i["title"],
@@ -197,7 +172,6 @@ class _EditPresentationState extends State<EditPresentation> {
                 'example': i["example"]
               });
             }
-            rowsExample.add({'title': '', 'description': '', 'example': ''});
           }
 
           isLoading = false; // Set loading to false
@@ -215,12 +189,11 @@ class _EditPresentationState extends State<EditPresentation> {
   }
 
   Future<void> uploadData() async {
-    rowsInstallations.removeLast();
-    rowsHowToUse.removeLast();
-    rowsExample.removeLast();
+    setState(() {
+      isEditing = true;
+    });
     // Create a map of data to send
     Map<String, dynamic> data = {
-      // 'userName': _userName.text,
       'libraryName': _libraryName.text,
       'description': _description.text,
       'reference': _reference.text,
@@ -239,12 +212,10 @@ class _EditPresentationState extends State<EditPresentation> {
 
     final uri = Uri.parse(
         'http://192.168.101.199:3001/mobile_update_library/${widget.libraryId}');
-    // final uri = Uri.parse('http://192.168.101.199:3001/addLibrary');
     final request = http.MultipartRequest('PUT', uri);
     File? imageFile = _image;
 
     if (imageFile != null) {
-      // print('imageeeeeee:::> $imageFile');
       request.files.add(
         http.MultipartFile(
           'image',
@@ -257,7 +228,6 @@ class _EditPresentationState extends State<EditPresentation> {
 
     if (_files.length > 0) {
       for (var file in _files) {
-        print('file==> $file');
         request.files.add(
           http.MultipartFile(
             'files',
@@ -271,15 +241,13 @@ class _EditPresentationState extends State<EditPresentation> {
 
     // Add text fields data to the request as JSON
     request.fields['data'] = jsonEncode(data);
-    print('request===> ${request.files}');
 
     // Send the request
     final response = await request.send();
 
     if (response.statusCode == 200) {
-      final res = await http.Response.fromStream(response);
-      final responseData = jsonDecode(res.body);
-      print('Update successful: $responseData');
+      widget.onEdit();
+      // Navigator.pop(context);
     } else {
       print('Update failed with status: ${response.statusCode}');
     }
@@ -301,68 +269,43 @@ class _EditPresentationState extends State<EditPresentation> {
     }
   }
 
-  void _addRow(String type, String title, String description, String example) {
+  void _editRow(String type, String title, String description, String example,int index) {
     if (type == "installations") {
+      // ignore: avoid_print
+      print('Edited Row: $title, $description, $example, $index');
       setState(() {
-        if (rowsInstallations.length == 1) {
-          if (rowsInstallations[0]['title'] == "" &&
-              rowsInstallations[0]['description'] == "" &&
-              rowsInstallations[0]['example'] == "") {
-            rowsInstallations.removeAt(0);
-          }
-          rowsInstallations.add(
-              {'title': title, 'description': description, 'example': example});
-          rowsInstallations
-              .add({'title': '', 'description': '', 'example': ''});
-        } else if (rowsInstallations.length > 1) {
-          rowsInstallations.insert(rowsInstallations.length - 1,
-              {'title': title, 'description': description, 'example': example});
-        } else {
-          rowsInstallations.add(
-              {'title': title, 'description': description, 'example': example});
-          rowsInstallations
-              .add({'title': '', 'description': '', 'example': ''});
-        }
+        rowsInstallations[index] =
+            ({'title': title, 'description': description, 'example': example});
       });
     } else if (type == "how_to_use") {
       setState(() {
-        if (rowsHowToUse.length == 1) {
-          if (rowsHowToUse[0]['title'] == "" &&
-              rowsHowToUse[0]['description'] == "" &&
-              rowsHowToUse[0]['example'] == "") {
-            rowsHowToUse.removeAt(0);
-          }
-          rowsHowToUse.add(
-              {'title': title, 'description': description, 'example': example});
-          rowsHowToUse.add({'title': '', 'description': '', 'example': ''});
-        } else if (rowsHowToUse.length > 1) {
-          rowsHowToUse.insert(rowsHowToUse.length - 1,
-              {'title': title, 'description': description, 'example': example});
-        } else {
-          rowsHowToUse.add(
-              {'title': title, 'description': description, 'example': example});
-          rowsHowToUse.add({'title': '', 'description': '', 'example': ''});
-        }
+        rowsHowToUse[index] =
+            ({'title': title, 'description': description, 'example': example});
       });
     } else if (type == "example") {
       setState(() {
-        if (rowsExample.length == 1) {
-          if (rowsExample[0]['title'] == "" &&
-              rowsExample[0]['description'] == "" &&
-              rowsExample[0]['example'] == "") {
-            rowsExample.removeAt(0);
-          }
-          rowsExample.add(
-              {'title': title, 'description': description, 'example': example});
-          rowsExample.add({'title': '', 'description': '', 'example': ''});
-        } else if (rowsExample.length > 1) {
-          rowsExample.insert(rowsExample.length - 1,
-              {'title': title, 'description': description, 'example': example});
-        } else {
-          rowsExample.add(
-              {'title': title, 'description': description, 'example': example});
-          rowsExample.add({'title': '', 'description': '', 'example': ''});
-        }
+        rowsExample[index] =
+            ({'title': title, 'description': description, 'example': example});
+      });
+    }
+  }
+
+
+  void _addRow(String type, String title, String description, String example) {
+    if (type == "installations") {
+      setState(() {
+        rowsInstallations.add(
+            {'title': title, 'description': description, 'example': example});
+      });
+    } else if (type == "how_to_use") {
+      setState(() {
+        rowsHowToUse.add(
+            {'title': title, 'description': description, 'example': example});
+      });
+    } else if (type == "example") {
+      setState(() {
+        rowsExample.add(
+            {'title': title, 'description': description, 'example': example});
       });
     }
   }
@@ -381,15 +324,6 @@ class _EditPresentationState extends State<EditPresentation> {
         iconTheme: const IconThemeData(
           color: Colors.white, // Change this to your desired color
         ),
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back,color: Colors.white,),
-        //   onPressed: () {
-        //     Navigator.pushReplacement(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => const LibraryList()),
-        //     );
-        //   },
-        // ),
       ),
 
       //body
@@ -475,14 +409,6 @@ class _EditPresentationState extends State<EditPresentation> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    // const Text(
-                    //   'Selected Files:',
-                    //   style: TextStyle(
-                    //     fontWeight: FontWeight.bold,
-                    //     fontSize: 16,
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 10),
 
                     // Displaying default files
                     ListView.builder(
@@ -501,11 +427,9 @@ class _EditPresentationState extends State<EditPresentation> {
                           trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              // _removeFile(index);
                               setState(() {
                                 removedFiles.add(defaultFiles[index]['originalname']);
                                 defaultFiles.removeAt(index);
-                                print('removeee=> $removedFiles');
                               });
                             },
                           ),
@@ -529,7 +453,6 @@ class _EditPresentationState extends State<EditPresentation> {
                           trailing: IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             onPressed: () {
-                              // _removeFile(index);
                               setState(() {
                                 _files.removeAt(index);
                               });
@@ -565,142 +488,221 @@ class _EditPresentationState extends State<EditPresentation> {
                     const SizedBox(height: 20),
 
                     // Section for Installation
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Installation',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Installation',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Description under Installation
+                TextFormField(
+                  controller: _installationDes,
+                  decoration: const InputDecoration(
+                    label: Text(
+                      "Description",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Section for Table Installations
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Table installations',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                // Table
+
+                const SizedBox(height: 10),
+
+                // Use the separated table widget
+                rowsInstallations.isNotEmpty
+                    ? InstallationTable(
+                        installationDes: rowsInstallations,
+                        onRemoveRow: _removeRow,
+                        onEditRow: _editRow,
+                        type: 'installations',
+                      )
+                    : const Padding(
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: Text(
+                          "No data available",
+                          style: TextStyle(color: Colors.grey),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
+                const SizedBox(
+                  height: 10,
+                ),
 
-                    // Description under Installation
-                    TextFormField(
-                      controller: _installationDes,
-                      decoration: const InputDecoration(
-                        label: Text(
-                          "Description",
-                          style: TextStyle(fontSize: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) => AddExample(
+                                  onAddInstallation: (value) {
+                                    _addRow("installations", value['title'],
+                                        value['description'], value['example']);
+                                    // print(value['title']);
+                                  },
+                                )));
+                  },
+                  child: const Text("Add New Row",
+                      style: TextStyle(fontSize: 16.0)),
+                ),
+
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'How to use',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                // Description under Installation
+                TextFormField(
+                  controller: _howToUseDes,
+                  decoration: const InputDecoration(
+                    label: Text(
+                      "Description",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Table how to use',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+
+                // Use the separated table widget
+                rowsHowToUse.isNotEmpty
+                    ? InstallationTable(
+                        installationDes: rowsHowToUse,
+                        onRemoveRow: _removeRow,
+                        onEditRow: _editRow,
+                        type: 'how_to_use',
+                      )
+                    : const Padding(
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: Text(
+                          "No data available",
+                          style: TextStyle(color: Colors.grey),
                         ),
                       ),
+                const SizedBox(
+                  height: 10,
+                ),
+
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) => AddExample(
+                                  onAddInstallation: (value) {
+                                    _addRow("how_to_use", value['title'],
+                                        value['description'], value['example']);
+                                    // print(value['title']);
+                                  },
+                                )));
+                  },
+                  child: const Text("Add New Row",
+                      style: TextStyle(fontSize: 16.0)),
+                ),
+
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Example',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 20),
+                  ),
+                ),
+                const SizedBox(height: 10),
 
-                    // Section for Table Installations
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Table installations',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                // Description under Installation
+                TextFormField(
+                  controller: _exampleDes,
+                  decoration: const InputDecoration(
+                    label: Text(
+                      "Description",
+                      style: TextStyle(fontSize: 16),
                     ),
-                    // Table
+                  ),
+                ),
+                const SizedBox(height: 20),
 
-                    const SizedBox(height: 10),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Table example',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
 
-                    // Use the separated table widget
-                    InstallationTable(
-                      installationDes: rowsInstallations,
-                      onRemoveRow: _removeRow,
-                      type: 'installations',
-                    ),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        showAddRowDialog(context, "installations",
-                            (title, description, example) {
-                          _addRow("installations", title, description, example);
-                        });
-                      },
-                      child: const Text("Add New Row",
-                          style: TextStyle(fontSize: 16.0)),
-                    ),
-
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'How to use',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                // Use the separated table widget
+                rowsExample.isNotEmpty
+                    ? InstallationTable(
+                        installationDes: rowsExample,
+                        onRemoveRow: _removeRow,
+                        onEditRow: _editRow,
+                        type: 'example',
+                      )
+                    : const Padding(
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: Text(
+                          "No data available",
+                          style: TextStyle(color: Colors.grey),
                         ),
                       ),
-                    ),
+                const SizedBox(
+                  height: 10,
+                ),
 
-                    // Description under Installation
-                    TextFormField(
-                      controller: _howToUseDes,
-                      decoration: const InputDecoration(
-                        label: Text(
-                          "Description",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Use the separated table widget
-                    InstallationTable(
-                      installationDes: rowsHowToUse,
-                      onRemoveRow: _removeRow,
-                      type: 'how_to_use',
-                    ),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        showAddRowDialog(context, "how_to_use",
-                            (title, description, example) {
-                          _addRow("how_to_use", title, description, example);
-                        });
-                      },
-                      child: const Text("Add New Row",
-                          style: TextStyle(fontSize: 16.0)),
-                    ),
-
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Example',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Description under Installation
-                    TextFormField(
-                      controller: _exampleDes,
-                      decoration: const InputDecoration(
-                        label: Text(
-                          "Description",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Use the separated table widget
-                    InstallationTable(
-                      installationDes: rowsExample,
-                      onRemoveRow: _removeRow,
-                      type: 'example',
-                    ),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        showAddRowDialog(context, "example",
-                            (title, description, example) {
-                          _addRow("example", title, description, example);
-                        });
-                      },
-                      child: const Text("Add New Row",
-                          style: TextStyle(fontSize: 12.0)),
-                    ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) => AddExample(
+                                  onAddInstallation: (value) {
+                                    _addRow("example", value['title'],
+                                        value['description'], value['example']);
+                                    // print(value['title']);
+                                  },
+                                )));
+                  },
+                  child: const Text("Add New Row",
+                      style: TextStyle(fontSize: 16.0)),
+                ),
 
                     const Align(
                       alignment: Alignment.centerLeft,
@@ -730,17 +732,19 @@ class _EditPresentationState extends State<EditPresentation> {
                     ElevatedButton(
                       onPressed: () async {
                         await uploadData();
-                        widget.onEdit();
-                        // Navigator.pop(context); // Navigate back
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (ctx) => const LibraryList()),
-                        );
                       },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF07837F)),
-                      child: Text(
+                      child: isEditing 
+                  ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                    strokeWidth:2,
+                                    color: Colors.white,
+                                ), // Show progress indicator when downloading
+                              )
+                  :Text(
                         "Update",
                         style: GoogleFonts.kanit(
                             textStyle: const TextStyle(

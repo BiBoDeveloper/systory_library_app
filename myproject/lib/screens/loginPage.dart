@@ -55,9 +55,7 @@ class _LoginPageState extends State<LoginPage> {
    Future<void> _loginUser(String email, String password) async {
     try {
       // API URL
-      var url = Uri.parse('http://192.168.101.199:3001/getUser');
-      // var url = Uri.parse('http://192.168.101.1999:3000/getUser');
-      
+      var url = Uri.parse('http://192.168.101.199:3001/getUser');      
       // Make HTTP POST request
       var response = await http.post(
         url,
@@ -124,11 +122,6 @@ class _LoginPageState extends State<LoginPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Image.asset(
-                        //   'assets/images/systory_logo.png', // Replace with your image path
-                        //   height: 180,
-                        //   width: 180,
-                        // ),
                         const SizedBox(height: 20),
                         Text(
                           "Login",

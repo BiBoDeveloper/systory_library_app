@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import 'package:myproject/models/person.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:myproject/screens/addPresentation.dart';
-// import 'package:myproject/screens/detail.dart';
 import 'package:myproject/screens/loginPage.dart';
 import 'package:myproject/screens/library_item.dart';
-// import 'package:myproject/screens/addform.dart';
-// import 'package:myproject/screens/loginPage.dart';
 
 class LibraryList extends StatefulWidget {
   const LibraryList({super.key});
@@ -20,49 +15,17 @@ class LibraryList extends StatefulWidget {
   _LibraryListState createState() => _LibraryListState();
 }
 
-// class Attachment {
-//   final int size;
-//   final String filename;
-//   final String originalName;
-
-//   Attachment({
-//     required this.size,
-//     required this.filename,
-//     required this.originalName,
-//   });
-// }
-
 class _LibraryListState extends State<LibraryList> {
-  // List of library items
-  // final List<LibraryItem> allLibraryItems = List.generate(
-  //   5,
-  //   (index) => LibraryItem(
-  //     title: 'Langchain',
-  //     description:
-  //         'Docker is a tool that is used to automate the deployment of application',
-  //     author: 'pele',
-  //   ),
-  // );
   List<LibraryItem> allLibraryItems = [];
 
   // Filtered list for the search functionality
   List<LibraryItem> filteredLibraryItems = [];
   bool isLoading = true; // Initial loading state
-  // String userName = "";
-  // String userId = "";
-  // String userRole = "";
 
   @override
   void initState() {
     super.initState();
-    // initLocalStorage();
-    // userName = localStorage.getItem('userName') ?? "";
-    // userId = localStorage.getItem('userId') ?? "";
-    // userRole = localStorage.getItem('userRole') ?? "";
-    
-    // print('username: $userName, userId: $userId, userRole: $userRole');
     fetchLibraryItems(); // Fetch data when the screen is initialized
-    // print('Filtered item count: ${filteredLibraryItems.length}');
   }
 
   // Function to fetch data from the server
@@ -71,34 +34,15 @@ class _LibraryListState extends State<LibraryList> {
       isLoading = true; // Set loading to true
     });
     final url = Uri.parse('http://192.168.101.199:3001/');
-    // final url = Uri.parse('http://10.0.2.2:3000/librarys');
     try {
       final response = await http.get(url);
-      // print(response.statusCode);
       if (response.statusCode == 200) {
         // Decode JSON data
         List<dynamic> data = jsonDecode(response.body);
-        // ignore: avoid_print
-        // print("data");
-        // print(data);
-        // List<Attachment> attachments = data.map((item){
-        //   return Attachment(size: item['size'], filename: item['filename'], originalName: item['originalName']);
-        // }).toList();
-        // // ignore: avoid_print
-        // print('attachments: $attachments');
+        data.sort((a, b) => b['LIB_ID'].compareTo(a['LIB_ID']));
 
         // Map the JSON to the LibraryItem model
         List<LibraryItem> fetchedItems = data.map((item) {
-          // return LibraryItem(
-          //   title: item['LIB_NAME'],
-          //   description: item['DESCRIPTION'],
-          //   author: item['CREATE_BY'],
-          //   image: item['IMAGE'],
-          //   id: item['LIB_ID'].toString(),
-          // );
-          print(item['ATTRACHMENT']);
-          // String hhh = jsonDecode(item['ATTRACHMENT']);
-          // List<Attachment> attachments = item['ATTRACHMENT'];
           return LibraryItem(
             libName: item['LIB_NAME'],
             description: item['DESCRIPTION'] ?? '',
@@ -112,10 +56,6 @@ class _LibraryListState extends State<LibraryList> {
             descriptionsExp: item['DESCRIPTIONS_EXP'] ?? '',
             descriptionsSgt: item['DESCRIPTIONS_SGT'] ?? '',
             userName: item['name'] ?? '',
-            // attachment: jsonDecode(item['ATTRACHMENT']),
-            // installation: item['INSTALLATION'] ?? '',
-            // howToUse: item['HOWTOUSE'] ?? '',
-            // example: item['EXAMPLE'] ?? '',
           );
         }).toList();
         
@@ -135,16 +75,6 @@ class _LibraryListState extends State<LibraryList> {
       });
     }
   }
-
-  // Future<void> deleteLibrary() async {
-  //   try {
-  //     final url = Uri.parse('http://192.168.101.199:3001/delete/library/');
-  //     await http.get(url);
-  //     fetchLibraryItems();
-  //   } catch (e) {
-  //     print('Error fetching data: $e');
-  //   }
-  // }
 
   void _filterLibraryList(String query) {
     // If the search query is empty, show all items
@@ -201,7 +131,6 @@ class _LibraryListState extends State<LibraryList> {
             ),
             onPressed: () {
               // Add your logout logic here
-              // print('Logout tapped');
               showDialog<String>(
                 context: context,
                 builder: (BuildContext context) => AlertDialog(

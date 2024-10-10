@@ -1,25 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:myproject/screens/detail.dart';
-// import 'package:myproject/screens/library_list.dart';
 import 'package:http/http.dart' as http;
 import 'package:myproject/screens/editPresentation.dart';
 
-// class LibraryItem {
-//   final String title;
-//   final String description;
-//   final String author;
-//   final String image;
-//   final String id;
-
-//   LibraryItem({
-//     required this.libName,
-//     required this.description,
-//     required this.createdBy,
-//     required this.image,
-//     required this.id,
-//   });
-// }
 class LibraryItem {
   final int libId;
   final String libName;
@@ -33,10 +17,6 @@ class LibraryItem {
   final String image;
   final String createdBy;
   final String userName;
-  // final String attachment;
-  // final String installation;
-  // final String howToUse;
-  // final String example;
 
   LibraryItem({
     required this.libId,
@@ -51,15 +31,10 @@ class LibraryItem {
     required this.image,
     required this.createdBy,
     required this.userName,
-    // required this.attachment,
-    // required this.installation,
-    // required this.howToUse,
-    // required this.example,
   });
 }
 
 class LibraryItemCard extends StatefulWidget {
-  // final Function() onChange;
   final VoidCallback onChange;
   final LibraryItem libraryItem;
   const LibraryItemCard(
@@ -75,26 +50,18 @@ class _LibraryItemCardState extends State<LibraryItemCard> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setState(() {
       userId = localStorage.getItem('userId') ?? "";
       userRole = localStorage.getItem('userRole') ?? "";
     });
-    // print('userIdddddddd: $userId');
-    // print('userIdddddddd: $userRole');
-    print(
-        'userRole: $userRole, userId: $userId, createdBy: ${widget.libraryItem.createdBy}');
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // ignore: avoid_print
         FocusScope.of(context).unfocus(); // Unfocus any input fields
-        // ignore: avoid_print
-        // print('Card tap: ${libraryItem.libName}');
         var libId = (widget.libraryItem.libId).toString();
         Navigator.push(
             context,
@@ -125,9 +92,6 @@ class _LibraryItemCardState extends State<LibraryItemCard> {
                           onSelected: (value) {
                             FocusScope.of(context).unfocus();
                             if (value == 'edit') {
-                              // ignore: avoid_print
-                              print(
-                                  'Edit selected for ${widget.libraryItem.libName}');
                               var libId = (widget.libraryItem.libId).toString();
                               Navigator.push(
                                   context,
@@ -140,9 +104,6 @@ class _LibraryItemCardState extends State<LibraryItemCard> {
                                           })));
                               // Navigate to edit page or show edit dialog
                             } else if (value == 'delete') {
-                              // ignore: avoid_print
-                              print(
-                                  'Delete selected for ${widget.libraryItem.libName}');
                               showDialog<String>(
                                 context: context,
                                 builder: (BuildContext context) => AlertDialog(
@@ -185,7 +146,7 @@ class _LibraryItemCardState extends State<LibraryItemCard> {
                                   ];
                           },
                         )
-                      : SizedBox(
+                      : const SizedBox(
                           height: 50,
                         ),
                 ],
@@ -193,11 +154,9 @@ class _LibraryItemCardState extends State<LibraryItemCard> {
               Row(
                 children: [
                   Image.network(
-                    // 'http://10.0.2.2/server/uploads/${libraryItem.image}', // Replace with your image
                     'http://192.168.101.199:5173/server/src/uploads/${widget.libraryItem.image}', // Replace with your image
                     width: 60,
                     height: 60,
-                    // fit: BoxFit.cover,
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -212,7 +171,6 @@ class _LibraryItemCardState extends State<LibraryItemCard> {
                               color: Colors.white),
                         ),
                         const Divider(),
-                        // const SizedBox(height: 5),
                         Text(
                           widget.libraryItem.description.length > 90
                               ? '${widget.libraryItem.description.substring(0, 90)}...' // Limit to 100 characters
